@@ -13,9 +13,12 @@ struct PresetBuilder {
         "Other"
     ]
 
-    static let ruleFiles = [
+    static let builtinDirectRuleFiles = [
         "cn_direct_domains.list",
-        "cn_direct_ip.list",
+        "cn_direct_ip.list"
+    ]
+
+    static let serviceRuleFiles = [
         "claude_code.list",
         "openai.list",
         "gemini.list",
@@ -41,18 +44,103 @@ struct PresetBuilder {
         try content.write(to: destination, atomically: true, encoding: .utf8)
     }
 
-    func loadRuleLines(from rulesDirectory: URL) throws -> [String] {
+    func loadRuleLines(from rulesDirectory: URL, customDirectRulesText: String = "") throws -> [String] {
+        let builtinDirectRules = try loadRuleLines(from: Self.builtinDirectRuleFiles, in: rulesDirectory)
+        let customDirectRules = try normalizeCustomDirectRules(from: customDirectRulesText)
+        let serviceRules = try loadRuleLines(from: Self.serviceRuleFiles, in: rulesDirectory)
+
+        return builtinDirectRules + customDirectRules + serviceRules + ["MATCH,Other"]
+    }
+
+    private func loadRuleLines(from files: [String], in rulesDirectory: URL) throws -> [String] {
         var lines: [String] = []
-        for file in Self.ruleFiles {
+        for file in files {
             let fileURL = rulesDirectory.appendingPathComponent(file)
             let content = try String(contentsOf: fileURL, encoding: .utf8)
             let fileLines = content
                 .split(whereSeparator: \.isNewline)
                 .map { String($0).trimmingCharacters(in: .whitespaces) }
-                .filter { !$0.isEmpty && !$0.hasPrefix("#") }
+                .filter { !$0.isEmpty && !$0.hasPrefix("#") && !$0.hasPrefix("//") }
             lines.append(contentsOf: fileLines)
         }
 
-        return lines + ["MATCH,Other"]
+        return lines
+    }
+
+    private func normalizeCustomDirectRules(from rawText: String) throws -> [String] {
+        var normalized: [String] = []
+        var seen = Set<String>()
+
+        for rawLine in rawText.split(whereSeparator: \.isNewline) {
+            let line = String(rawLine).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, !line.hasPrefix("#"), !line.hasPrefix("//") else {
+                continue
+            }
+
+            let normalizedLine = try normalizeCustomDirectRule(line)
+            guard seen.insert(normalizedLine).inserted else {
+                continue
+            }
+            normalized.append(normalizedLine)
+        }
+
+        return normalized
+    }
+
+    private func normalizeCustomDirectRule(_ line: String) throws -> String {
+        if !line.contains(",") {
+            guard isValidBareDomain(line) else {
+                throw PresetBuilderError.invalidCustomDirectRule(line)
+            }
+            return "DOMAIN-SUFFIX,\(line),DIRECT"
+        }
+
+        let segments = line.split(separator: ",", omittingEmptySubsequences: false).map {
+            $0.trimmingCharacters(in: .whitespaces)
+        }
+        guard segments.count >= 2 else {
+            throw PresetBuilderError.invalidCustomDirectRule(line)
+        }
+
+        let ruleType = segments[0].uppercased()
+        guard Self.supportedCustomRuleTypes.contains(ruleType), !segments[1].isEmpty else {
+            throw PresetBuilderError.invalidCustomDirectRule(line)
+        }
+
+        if segments.count == 2 {
+            return "\(ruleType),\(segments[1]),DIRECT"
+        }
+
+        guard segments[2].uppercased() == "DIRECT" else {
+            throw PresetBuilderError.invalidCustomDirectRule(line)
+        }
+
+        return ([ruleType] + Array(segments.dropFirst())).joined(separator: ",")
+    }
+
+    private func isValidBareDomain(_ line: String) -> Bool {
+        !line.isEmpty
+            && !line.contains(" ")
+            && !line.contains("/")
+            && !line.contains(":")
+            && !line.hasPrefix(".")
+            && !line.hasSuffix(".")
+    }
+
+    private static let supportedCustomRuleTypes: Set<String> = [
+        "DOMAIN",
+        "DOMAIN-SUFFIX",
+        "DOMAIN-KEYWORD"
+    ]
+}
+
+enum PresetBuilderError: LocalizedError {
+    case invalidCustomDirectRule(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidCustomDirectRule(let line):
+            return "Invalid direct-domain rule: \(line). Use a bare domain or a DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD rule that ends with DIRECT."
+        }
     }
 }

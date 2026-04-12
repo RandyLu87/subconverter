@@ -114,7 +114,7 @@ struct RuntimeInstaller {
 
         [emojis]
         add_emoji = false
-        remove_old_emoji = true
+        remove_old_emoji = false
 
         [ruleset]
         enabled = true

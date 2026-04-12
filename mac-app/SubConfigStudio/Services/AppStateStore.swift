@@ -9,7 +9,9 @@ struct AppStateStore {
             }
 
             let data = try Data(contentsOf: AppPaths.stateFile)
-            return try JSONDecoder().decode(PersistedAppState.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(PersistedAppState.self, from: data)
         } catch {
             return .empty
         }

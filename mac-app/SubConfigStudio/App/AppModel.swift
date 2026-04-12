@@ -13,6 +13,7 @@ final class AppModel: ObservableObject {
     @Published var statusMessage = "Ready"
     @Published var lastGeneratedAt: Date?
     @Published var lastGeneratedProxyCount: Int?
+    @Published var customDirectRulesText = ""
     @Published var showingAddSubscriptionSheet = false
     @Published var newSubscriptionName = ""
     @Published var newSubscriptionURL = ""
@@ -27,6 +28,7 @@ final class AppModel: ObservableObject {
         self.sources = state.sources.sorted(by: { $0.order < $1.order })
         self.lastGeneratedAt = state.lastGeneratedAt
         self.lastGeneratedProxyCount = state.lastGeneratedProxyCount
+        self.customDirectRulesText = state.customDirectRulesText
     }
 
     var sortedSources: [SourceItem] {
@@ -133,7 +135,10 @@ final class AppModel: ObservableObject {
         defer { isGenerating = false }
 
         do {
-            let result = try await generator.generate(from: sortedSources)
+            let result = try await generator.generate(
+                from: sortedSources,
+                customDirectRulesText: customDirectRulesText
+            )
             previewText = result.yaml
             lastGeneratedAt = Date()
             lastGeneratedProxyCount = result.proxyCount
@@ -173,6 +178,11 @@ final class AppModel: ObservableObject {
 
     func shutdown() {
         engine.stop()
+    }
+
+    func updateCustomDirectRulesText(_ value: String) {
+        customDirectRulesText = value
+        persist()
     }
 
     private func nextOrder() -> Int {
@@ -234,7 +244,8 @@ final class AppModel: ObservableObject {
             PersistedAppState(
                 sources: sortedSources,
                 lastGeneratedAt: lastGeneratedAt,
-                lastGeneratedProxyCount: lastGeneratedProxyCount
+                lastGeneratedProxyCount: lastGeneratedProxyCount,
+                customDirectRulesText: customDirectRulesText
             )
         )
     }

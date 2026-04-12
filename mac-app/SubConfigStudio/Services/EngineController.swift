@@ -83,6 +83,8 @@ final class EngineController {
             URLQueryItem(name: "target", value: "clash"),
             URLQueryItem(name: "list", value: "true"),
             URLQueryItem(name: "insert", value: "false"),
+            URLQueryItem(name: "add_emoji", value: "false"),
+            URLQueryItem(name: "remove_emoji", value: "false"),
             URLQueryItem(name: "config", value: configPath),
             URLQueryItem(name: "url", value: rawSources.joined(separator: "|"))
         ]

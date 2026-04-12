@@ -105,7 +105,11 @@ struct ClashConfigBuilder {
 
     private func icon(for group: String) -> String {
         switch group {
-        case "Claude Code", "OpenAI", "Gemini":
+        case "Claude Code":
+            return ProxyGroupIconCatalog.claudeCode
+        case "Gemini":
+            return ProxyGroupIconCatalog.gemini
+        case "OpenAI":
             return ProxyGroupIconCatalog.ai
         case "Binance", "OKX", "Bybit":
             return ProxyGroupIconCatalog.crypto

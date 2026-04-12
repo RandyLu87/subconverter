@@ -76,6 +76,42 @@ struct PersistedAppState: Codable {
     var sources: [SourceItem]
     var lastGeneratedAt: Date?
     var lastGeneratedProxyCount: Int?
+    var customDirectRulesText: String
 
-    static let empty = PersistedAppState(sources: [], lastGeneratedAt: nil, lastGeneratedProxyCount: nil)
+    init(
+        sources: [SourceItem],
+        lastGeneratedAt: Date?,
+        lastGeneratedProxyCount: Int?,
+        customDirectRulesText: String = ""
+    ) {
+        self.sources = sources
+        self.lastGeneratedAt = lastGeneratedAt
+        self.lastGeneratedProxyCount = lastGeneratedProxyCount
+        self.customDirectRulesText = customDirectRulesText
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case sources
+        case lastGeneratedAt
+        case lastGeneratedProxyCount
+        case customDirectRulesText
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.sources = try container.decode([SourceItem].self, forKey: .sources)
+        self.lastGeneratedAt = try container.decodeIfPresent(Date.self, forKey: .lastGeneratedAt)
+        self.lastGeneratedProxyCount = try container.decodeIfPresent(Int.self, forKey: .lastGeneratedProxyCount)
+        self.customDirectRulesText = try container.decodeIfPresent(String.self, forKey: .customDirectRulesText) ?? ""
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(sources, forKey: .sources)
+        try container.encodeIfPresent(lastGeneratedAt, forKey: .lastGeneratedAt)
+        try container.encodeIfPresent(lastGeneratedProxyCount, forKey: .lastGeneratedProxyCount)
+        try container.encode(customDirectRulesText, forKey: .customDirectRulesText)
+    }
+
+    static let empty = PersistedAppState(sources: [], lastGeneratedAt: nil, lastGeneratedProxyCount: nil, customDirectRulesText: "")
 }

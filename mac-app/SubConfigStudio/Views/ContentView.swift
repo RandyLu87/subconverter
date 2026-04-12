@@ -173,49 +173,75 @@ private struct PresetPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Preset")
-                .font(.title2.weight(.semibold))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Preset")
+                        .font(.title2.weight(.semibold))
 
-            Text("Built-in direct rules for private, mainland domains, and mainland IP ranges are always enabled.")
-                .foregroundStyle(.secondary)
+                    Text("Built-in direct rules for private, mainland domains, and mainland IP ranges are always enabled.")
+                        .foregroundStyle(.secondary)
 
-            Divider()
+                    Divider()
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Country Auto Groups")
-                    .font(.headline)
-                ForEach(CountryBucket.allCases, id: \.self) { bucket in
-                    Label(bucket.groupName, systemImage: "flag.2.crossed")
-                        .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Country Auto Groups")
+                            .font(.headline)
+                        ForEach(CountryBucket.allCases, id: \.self) { bucket in
+                            Label(bucket.groupName, systemImage: "flag.2.crossed")
+                                .font(.subheadline)
+                        }
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Core Groups")
+                            .font(.headline)
+                        ForEach(PresetBuilder.policyGroups, id: \.self) { group in
+                            Label(group, systemImage: "checkmark.seal")
+                                .font(.subheadline)
+                        }
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Direct Overrides")
+                            .font(.headline)
+                        Text("One entry per line. Bare domains default to DOMAIN-SUFFIX,<domain>,DIRECT.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        TextEditor(text: Binding(
+                            get: { model.customDirectRulesText },
+                            set: { model.updateCustomDirectRulesText($0) }
+                        ))
+                        .font(.system(.caption, design: .monospaced))
+                        .frame(minHeight: 120)
+                        .padding(8)
+                        .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                        Text("Examples: appykt.com, DOMAIN,foo.example,DIRECT, DOMAIN-SUFFIX,bar.com,DIRECT")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Routing Model")
+                            .font(.headline)
+                        Text("Core groups")
+                        Text("Other")
+                        Text("Default")
+                        Text("Country auto groups")
+                        Text("Each policy group: Default -> DIRECT -> country auto groups -> all proxies")
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Core Groups")
-                    .font(.headline)
-                ForEach(PresetBuilder.policyGroups, id: \.self) { group in
-                    Label(group, systemImage: "checkmark.seal")
-                        .font(.subheadline)
-                }
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Routing Model")
-                    .font(.headline)
-                Text("Core groups")
-                Text("Other")
-                Text("Default")
-                Text("Country auto groups")
-                Text("Each policy group: Default -> DIRECT -> country auto groups -> all proxies")
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-
-            Spacer()
 
             if let lastGeneratedProxyCount = model.lastGeneratedProxyCount {
                 Text("Last generated proxies: \(lastGeneratedProxyCount)")

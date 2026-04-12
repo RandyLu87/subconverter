@@ -30,7 +30,7 @@ final class ConfigGenerationService {
         try runtimeInstaller.installIfNeeded()
     }
 
-    func generate(from sources: [SourceItem]) async throws -> GenerationResult {
+    func generate(from sources: [SourceItem], customDirectRulesText: String) async throws -> GenerationResult {
         let enabledSources = sources
             .filter(\.enabled)
             .sorted { $0.order < $1.order }
@@ -57,7 +57,10 @@ final class ConfigGenerationService {
         AppLogger.log(
             "Normalized country buckets: \(ProxyCountryClassifier.summary(for: ProxyCountryClassifier.bucketed(names: normalized.map { $0.name })))"
         )
-        let rules = try presetBuilder.loadRuleLines(from: runtime.appRulesDirectory)
+        let rules = try presetBuilder.loadRuleLines(
+            from: runtime.appRulesDirectory,
+            customDirectRulesText: customDirectRulesText
+        )
         AppLogger.log("Loaded \(rules.count) rule lines.")
         let yaml = builder.build(proxies: normalized, ruleLines: rules)
         AppLogger.log("Final YAML size: \(yaml.utf8.count) bytes.")
