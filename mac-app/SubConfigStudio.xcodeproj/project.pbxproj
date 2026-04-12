@@ -1,0 +1,349 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA0000000000000000000101 /* SourceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000201 /* SourceItem.swift */; };
+		AA0000000000000000000102 /* AppPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000202 /* AppPaths.swift */; };
+		AA0000000000000000000103 /* AppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000203 /* AppStateStore.swift */; };
+		AA0000000000000000000104 /* RuntimeInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000204 /* RuntimeInstaller.swift */; };
+		AA0000000000000000000105 /* PresetBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000205 /* PresetBuilder.swift */; };
+		AA0000000000000000000106 /* EngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000206 /* EngineController.swift */; };
+		AA0000000000000000000107 /* ProxyListParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000207 /* ProxyListParser.swift */; };
+		AA0000000000000000000108 /* YAMLPostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000208 /* YAMLPostProcessor.swift */; };
+		AA0000000000000000000109 /* ClashConfigBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000209 /* ClashConfigBuilder.swift */; };
+		AA0000000000000000000110 /* ConfigGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000210 /* ConfigGenerationService.swift */; };
+		AA0000000000000000000111 /* SourceImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000211 /* SourceImportService.swift */; };
+		AA0000000000000000000112 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000212 /* AppModel.swift */; };
+		AA0000000000000000000113 /* SubConfigStudioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000213 /* SubConfigStudioApp.swift */; };
+		AA0000000000000000000114 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000214 /* ContentView.swift */; };
+		AA0000000000000000000120 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000220 /* AppLogger.swift */; };
+		AA0000000000000000000121 /* ProxyCountryClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* ProxyCountryClassifier.swift */; };
+		AA0000000000000000000115 /* subconverter in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000315 /* subconverter */; };
+		AA0000000000000000000116 /* base in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000316 /* base */; };
+		AA0000000000000000000117 /* rules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000317 /* rules */; };
+		AA0000000000000000000118 /* snippets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000318 /* snippets */; };
+		AA0000000000000000000119 /* AppRules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000319 /* AppRules */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA0000000000000000000201 /* SourceItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceItem.swift; sourceTree = "<group>"; };
+		AA0000000000000000000202 /* AppPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPaths.swift; sourceTree = "<group>"; };
+		AA0000000000000000000203 /* AppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000000204 /* RuntimeInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeInstaller.swift; sourceTree = "<group>"; };
+		AA0000000000000000000205 /* PresetBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetBuilder.swift; sourceTree = "<group>"; };
+		AA0000000000000000000206 /* EngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineController.swift; sourceTree = "<group>"; };
+		AA0000000000000000000207 /* ProxyListParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyListParser.swift; sourceTree = "<group>"; };
+		AA0000000000000000000208 /* YAMLPostProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YAMLPostProcessor.swift; sourceTree = "<group>"; };
+		AA0000000000000000000209 /* ClashConfigBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClashConfigBuilder.swift; sourceTree = "<group>"; };
+		AA0000000000000000000210 /* ConfigGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigGenerationService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000211 /* SourceImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceImportService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000212 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		AA0000000000000000000213 /* SubConfigStudioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubConfigStudioApp.swift; sourceTree = "<group>"; };
+		AA0000000000000000000214 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000220 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		AA0000000000000000000221 /* ProxyCountryClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyCountryClassifier.swift; sourceTree = "<group>"; };
+		AA0000000000000000000301 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA0000000000000000000315 /* subconverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = ../subconverter/subconverter; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000316 /* base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/base; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000317 /* rules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/rules; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000318 /* snippets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/snippets; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000319 /* AppRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = AppRules; sourceTree = "<group>"; };
+		AA0000000000000000000320 /* SubConfigStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubConfigStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA0000000000000000000401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA0000000000000000000501 = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000502 /* SubConfigStudio */,
+				AA0000000000000000000503 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000502 /* SubConfigStudio */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000504 /* App */,
+				AA0000000000000000000505 /* Models */,
+				AA0000000000000000000506 /* Services */,
+				AA0000000000000000000507 /* Views */,
+				AA0000000000000000000508 /* Resources */,
+			);
+			path = SubConfigStudio;
+			sourceTree = SOURCE_ROOT;
+		};
+		AA0000000000000000000503 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000320 /* SubConfigStudio.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000504 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000212 /* AppModel.swift */,
+				AA0000000000000000000213 /* SubConfigStudioApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000505 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000201 /* SourceItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000506 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000202 /* AppPaths.swift */,
+				AA0000000000000000000203 /* AppStateStore.swift */,
+				AA0000000000000000000220 /* AppLogger.swift */,
+				AA0000000000000000000209 /* ClashConfigBuilder.swift */,
+				AA0000000000000000000210 /* ConfigGenerationService.swift */,
+				AA0000000000000000000206 /* EngineController.swift */,
+				AA0000000000000000000205 /* PresetBuilder.swift */,
+				AA0000000000000000000221 /* ProxyCountryClassifier.swift */,
+				AA0000000000000000000207 /* ProxyListParser.swift */,
+				AA0000000000000000000204 /* RuntimeInstaller.swift */,
+				AA0000000000000000000211 /* SourceImportService.swift */,
+				AA0000000000000000000208 /* YAMLPostProcessor.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000507 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000214 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000508 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000301 /* Info.plist */,
+				AA0000000000000000000319 /* AppRules */,
+				AA0000000000000000000315 /* subconverter */,
+				AA0000000000000000000316 /* base */,
+				AA0000000000000000000317 /* rules */,
+				AA0000000000000000000318 /* snippets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA0000000000000000000601 /* SubConfigStudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "SubConfigStudio" */;
+			buildPhases = (
+				AA0000000000000000000402 /* Sources */,
+				AA0000000000000000000401 /* Frameworks */,
+				AA0000000000000000000403 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SubConfigStudio;
+			productName = SubConfigStudio;
+			productReference = AA0000000000000000000320 /* SubConfigStudio.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA0000000000000000000701 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					AA0000000000000000000601 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = AA0000000000000000000703 /* Build configuration list for PBXProject "SubConfigStudio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA0000000000000000000501;
+			productRefGroup = AA0000000000000000000503 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA0000000000000000000601 /* SubConfigStudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA0000000000000000000403 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000115 /* subconverter in Resources */,
+				AA0000000000000000000116 /* base in Resources */,
+				AA0000000000000000000117 /* rules in Resources */,
+				AA0000000000000000000118 /* snippets in Resources */,
+				AA0000000000000000000119 /* AppRules in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA0000000000000000000402 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000112 /* AppModel.swift in Sources */,
+				AA0000000000000000000113 /* SubConfigStudioApp.swift in Sources */,
+				AA0000000000000000000114 /* ContentView.swift in Sources */,
+				AA0000000000000000000120 /* AppLogger.swift in Sources */,
+				AA0000000000000000000121 /* ProxyCountryClassifier.swift in Sources */,
+				AA0000000000000000000101 /* SourceItem.swift in Sources */,
+				AA0000000000000000000102 /* AppPaths.swift in Sources */,
+				AA0000000000000000000103 /* AppStateStore.swift in Sources */,
+				AA0000000000000000000104 /* RuntimeInstaller.swift in Sources */,
+				AA0000000000000000000105 /* PresetBuilder.swift in Sources */,
+				AA0000000000000000000106 /* EngineController.swift in Sources */,
+				AA0000000000000000000107 /* ProxyListParser.swift in Sources */,
+				AA0000000000000000000108 /* YAMLPostProcessor.swift in Sources */,
+				AA0000000000000000000109 /* ClashConfigBuilder.swift in Sources */,
+				AA0000000000000000000110 /* ConfigGenerationService.swift in Sources */,
+				AA0000000000000000000111 /* SourceImportService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA0000000000000000000801 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000802 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AA0000000000000000000803 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SubConfigStudio/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000804 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SubConfigStudio/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "SubConfigStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000803 /* Debug */,
+				AA0000000000000000000804 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000703 /* Build configuration list for PBXProject "SubConfigStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000801 /* Debug */,
+				AA0000000000000000000802 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA0000000000000000000701 /* Project object */;
+}

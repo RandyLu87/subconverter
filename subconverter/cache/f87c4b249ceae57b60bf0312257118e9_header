@@ -1,0 +1,21 @@
+HTTP/2 200 
+date: Thu, 12 Feb 2026 11:34:38 GMT
+content-type: text/plain; charset=UTF-8
+cache-control: private, no-store
+server: cloudflare
+p3p: CP=IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT
+subscription-userinfo: upload=6797833574; download=130742222714; total=536870912000; expire=1782569549
+x-aspnet-version: 4.0.30319
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+age: 75
+cf-cache-status: HIT
+last-modified: Thu, 12 Feb 2026 11:33:23 GMT
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=vRKu3ZteUWhcYesS33hzhHKk%2B5cEeb7cg1JMFPeRE7YsO6a8fOrFjmEXDry6KgwbjppBduKP34%2FBv%2FAxP5lxPx2GYhN8FgSZSURvUInQZ5M%3D"}]}
+expect-ct: max-age=86400, enforce
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+cf-ray: 9ccbc72d2d4f76da-SEA
+

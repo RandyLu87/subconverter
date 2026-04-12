@@ -1,0 +1,147 @@
+[custom]
+; ==========================================================
+; 方案 A · 
+; - 仅使用 GEOSITE / GEOIP（不再引用不存在的 yaml）
+; - 保留 HK / TW / JP / SG / US 五个 fallback 体系不动
+; - 全节点手动 / 自动 只放在 Default / 漏网之鱼
+; - 新增：🧊 冷门节点（排除 HK/JP/TW/US/SG），并让所有应用可选
+; ==========================================================
+
+enable_rule_generator=true
+overwrite_original_rules=true
+
+; ==========================================================
+; 节点清洗：剔除机场展示/说明/防失联/流量提示节点
+; ==========================================================
+exclude=500.00|流量|套餐|到期|剩余|重置|官网|网站|最新网址|防失联|失联|官网地址|公告|通知|TG|Telegram|电报|群|频道|说明|使用说明|QQ群|客服|工单|订阅|Expire|Traffic|Reset|Remaining|Expire|Official|Website|Game|游戏|遊戲|倍率|專用
+
+
+; ==========================================================
+; 1) 规则（自上而下优先级）
+; ==========================================================
+
+; --- 私网直连 ---
+ruleset=DIRECT,[]GEOSITE,private
+ruleset=DIRECT,[]GEOIP,private,no-resolve
+
+; --- 国内直连 ---
+ruleset=DIRECT,[]GEOSITE,cn
+ruleset=DIRECT,[]GEOIP,cn,no-resolve
+
+; --- 国内可用 / 下载 / BT ---
+ruleset=DIRECT,[]GEOSITE,google-cn
+ruleset=DIRECT,[]GEOSITE,category-games@cn
+ruleset=DIRECT,[]GEOSITE,category-game-platforms-download
+ruleset=DIRECT,[]GEOSITE,category-public-tracker
+;------------请在下方区域内添加应用---------------
+; --- 核心应用 ---
+
+ruleset=📨 Telegram,[]GEOSITE,telegram
+ruleset=📨 Telegram,[]GEOIP,telegram,no-resolve
+
+ruleset=🤖 ChatGPT,[]GEOSITE,openai
+ruleset=🤖 Gemini,[]GEOSITE,google-gemini
+ruleset=🧠 AI,[]GEOSITE,category-ai-!cn
+
+ruleset=🍎 Apple,[]GEOSITE,apple
+ruleset=🎬 YouTube,[]GEOSITE,youtube
+ruleset=🎥 Netflix,[]GEOSITE,netflix
+ruleset=🎥 Netflix,[]GEOIP,netflix,no-resolve
+
+; --- 海外主流应用补充 ---
+ruleset=🐦 X,[]GEOSITE,twitter
+
+; --- 开发 / 工具 ---
+ruleset=🛠 GitHub,[]GEOSITE,github
+ruleset=🛠 GitHub,[]GEOIP,github,no-resolve
+ruleset=🚝 测速工具,[]GEOSITE,category-speedtest
+ruleset=🎮 Steam,[]GEOSITE,steam
+
+; --- 交易所 & Adobe（全部走 GEOSITE）---
+ruleset=🏁 OKX,[]GEOSITE,okx
+ruleset=🟨 Binance,[]GEOSITE,binance
+ruleset=🟪 Bybit,[]GEOSITE,bybit
+; ==========================================================
+; --- 若使用上方geo没有匹配到可以用下方url来匹配，需先在上方删除该应用的ruleset ---
+; --- ruleset=🏁 OKX,clash-domain:https://xxx/okx.yaml,86400
+; ==========================================================
+
+;------------请在上方区域内添加应用---------------
+
+ruleset=🔎 Google,[]GEOSITE,google
+ruleset=🔎 Google,[]GEOIP,google,no-resolve
+
+ruleset=🪟 Microsoft,[]GEOSITE,microsoft
+ruleset=🪟 Microsoft,[]GEOIP,microsoft,no-resolve
+
+; --- GFW 兜底 ---
+ruleset=🚀 GFW兜底,[]GEOSITE,gfw
+
+; --- 最终兜底 ---
+ruleset=🐟 漏网之鱼,[]FINAL
+
+
+; ==========================================================
+; 2) 应用分流策略组（UI 主入口，不越权）
+;    说明：每个应用都加入「🧊 冷门节点」可选
+; ==========================================================
+;------------请在下方区域内添加应用---------------
+custom_proxy_group=🤖 ChatGPT`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=🤖 Gemini`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=🧠 AI`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=📨 Telegram`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+
+custom_proxy_group=🎬 YouTube`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=🎥 Netflix`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+
+custom_proxy_group=🐦 X`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+
+
+custom_proxy_group=🛠 GitHub`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=🚝 测速工具`select`[]DIRECT`[]🧭 手动选择`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+custom_proxy_group=🎮 Steam`select`[]DIRECT`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+
+custom_proxy_group=🏁 OKX`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]DIRECT`[]🌐 Default
+custom_proxy_group=🟨 Binance`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]DIRECT`[]🌐 Default
+custom_proxy_group=🟪 Bybit`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]DIRECT`[]🌐 Default
+;------------请在上方区域内添加---------------
+; Adobe：允许一键禁止联网
+custom_proxy_group=🔎 Google`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+; Microsoft：允许直连优先，同时也能选五区/冷门/Default
+custom_proxy_group=🪟 Microsoft`select`[]DIRECT`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🌐 Default
+; Apple
+custom_proxy_group=🍎 Apple`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]DIRECT`[]🌐 Default
+
+; ==========================================================
+; 3) Default / 漏网之鱼（唯一允许全节点）
+;    同时新增：🧊 冷门节点（只收非 HK/JP/TW/US/SG 的节点）
+; ==========================================================
+
+; 兜底“手动选择”（不越权应用，只用于 Default/漏网）
+custom_proxy_group=🚀 GFW兜底`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🧭 手动选择`[]DIRECT
+
+; Default 出口（同样允许冷门节点参与）
+custom_proxy_group=🌐 Default`select`[]🇭🇰 HK`[]🇨🇳 TW`[]🇯🇵 JP`[]🇸🇬 SG`[]🇺🇸 US`[]🧊 冷门节点`[]🧭 手动选择`[]DIRECT
+
+custom_proxy_group=🐟 漏网之鱼`select`[]🌐 Default`[]DIRECT`[]🧊 冷门节点`[]🧭 手动选择`[]🚀 GFW兜底
+
+
+; ==========================================================
+; 4) 非标端口
+; ==========================================================
+custom_proxy_group=🐟 遵循规则`select`[]🐟 漏网之鱼
+
+
+; ==========================================================
+; 5) 国家节点测速组（保持不动）
+; ==========================================================
+; 全节点（允许任何节点显示）
+custom_proxy_group=🧭 手动选择`select`.*
+custom_proxy_group=🇭🇰 HK`fallback`(?i)(🇭🇰|香港|\\bHK\\b|hongkong|Hong Kong)`http://www.gstatic.com/generate_204`300,,50
+custom_proxy_group=🇨🇳 TW`fallback`(?i)(🇨🇳|台湾|\\bTW\\b|taiwan|taipei|hinet)`http://www.gstatic.com/generate_204`300,,50
+custom_proxy_group=🇯🇵 JP`fallback`(?i)(🇯🇵|日本|\\bJP\\b|tokyo|osaka|Japan)`http://www.gstatic.com/generate_204`300,,50
+custom_proxy_group=🇸🇬 SG`fallback`(?i)(🇸🇬|新加坡|\\bSG\\b|singapore)`http://www.gstatic.com/generate_204`300,,50
+custom_proxy_group=🇺🇸 US`fallback`(?i)(🇺🇸|美国|\\bUS\\b|united states|los angeles|san jose|seattle|new york)`http://www.gstatic.com/generate_204`300,,50
+; 冷门节点池（排除 HK/JP/TW/US/SG）——selector 手动选择
+; 说明：用负向匹配把五大区节点剔除，剩余即“冷门”
+custom_proxy_group=🧊 冷门节点`select`(?i)^(?!.*(🇭🇰|香港|\\bHK\\b|hong\\s*kong|Hong Kong|🇯🇵|日本|\\bJP\\b|tokyo|osaka|Japan|🇨🇳|台湾|\\bTW\\b|taiwan|taipei|hinet|🇸🇬|新加坡|\\bSG\\b|singapore|🇺🇸|美国|\\bUS\\b|united\\s*states|los\\s*angeles|san\\s*jose|seattle|new\\s*york|Los Angeles|San Jose)).*

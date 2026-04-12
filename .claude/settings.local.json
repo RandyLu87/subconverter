@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"\nimport urllib.parse\nurl = ''https://clash0811-main.rss-node.com/sub?target=clash&interval=129600&filename=Hitun&url=https%3A%2F%2Frss-node.com%2Flink%2F2b1A49Mgjh18Cvbp%3Fmu%3D1''\nencoded = urllib.parse.quote\\(url, safe=''''\\)\nprint\\(''Encoded URL:''\\)\nprint\\(encoded\\)\nprint\\(\\)\nprint\\(''Full request would be:''\\)\nprint\\(f''http://127.0.0.1:25500/sub?target=clash&url={encoded}''\\)\n\")",
+      "Bash(lsof:*)"
+    ]
+  }
+}

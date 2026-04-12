@@ -1,0 +1,20 @@
+HTTP/2 301 
+cf-ray: 9ccc0f1ea935312c-LAX
+date: Thu, 12 Feb 2026 12:23:45 GMT
+location: https://rss.main.hitun.io/link/2b1A49Mgjh18Cvbp?mu=1
+server: cloudflare
+vary: accept-encoding
+content-length: 0
+
+HTTP/2 200 
+date: Thu, 12 Feb 2026 12:23:47 GMT
+content-type: application/octet-stream; charset=utf-8
+content-length: 43988
+server: cloudflare
+subscription-userinfo: upload=440982432854; download=2967381962872; total=6445694189568; expire=1773382232
+profile-update-interval: 12
+cache-control: no-store, no-cache, must-revalidate
+content-disposition: attachment; filename=""
+cf-cache-status: DYNAMIC
+cf-ray: 9ccc0f20dac58380-SEA
+
