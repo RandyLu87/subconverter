@@ -10,6 +10,9 @@ struct YAMLPostProcessor {
             guard !shouldDropTrafficDisplayNode(named: proxy.name) else {
                 continue
             }
+            guard !shouldDropHighMultiplierNode(named: proxy.name) else {
+                continue
+            }
             guard seenSignatures.insert(proxy.signature).inserted else {
                 continue
             }
@@ -57,5 +60,48 @@ struct YAMLPostProcessor {
 
         let dataOnlyPattern = #"^[\p{Emoji_Presentation}\p{Emoji}\p{So}\s"]*\d+(?:\.\d+)?\s*(?:[KMGTPE]?i?B|[KMGTPE])(?:\s*\|\s*\d+(?:\.\d+)?\s*(?:[KMGTPE]?i?B|[KMGTPE]))+[\p{Emoji_Presentation}\p{Emoji}\p{So}\s"]*$"#
         return trimmed.range(of: dataOnlyPattern, options: [.regularExpression, .caseInsensitive]) != nil
+    }
+
+    private func shouldDropHighMultiplierNode(named name: String) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return false
+        }
+
+        let pattern = #"(\d+(?:\.\d+)?)\s*(?:[xX]|倍)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return false
+        }
+
+        let nsRange = NSRange(trimmed.startIndex..<trimmed.endIndex, in: trimmed)
+        let nsString = trimmed as NSString
+        for match in regex.matches(in: trimmed, range: nsRange) {
+            guard match.numberOfRanges > 1,
+                  let multiplierRange = Range(match.range(at: 1), in: trimmed),
+                  let multiplier = Double(trimmed[multiplierRange]),
+                  multiplier >= 5 else {
+                continue
+            }
+
+            let matchRange = match.range(at: 0)
+            if matchRange.location != 0 {
+                let previous = nsString.substring(with: NSRange(location: matchRange.location - 1, length: 1))
+                if previous.range(of: #"[A-Za-z0-9]"#, options: .regularExpression) != nil {
+                    continue
+                }
+            }
+
+            let nextLocation = matchRange.location + matchRange.length
+            if nextLocation < nsString.length {
+                let next = nsString.substring(with: NSRange(location: nextLocation, length: 1))
+                if next.range(of: #"[A-Za-z0-9.]"#, options: .regularExpression) != nil {
+                    continue
+                }
+            }
+
+            return true
+        }
+
+        return false
     }
 }

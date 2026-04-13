@@ -103,6 +103,9 @@ enum ProxyCountryClassifier {
 
     static func bucket(for name: String) -> CountryBucket {
         let normalized = name.lowercased()
+        if isBritishIndianOceanTerritory(normalized) {
+            return .other
+        }
         for bucket in CountryBucket.allCases where bucket != .other {
             if bucket.patterns.contains(where: { normalized.range(of: $0, options: .regularExpression) != nil }) {
                 return bucket
@@ -116,5 +119,15 @@ enum ProxyCountryClassifier {
         CountryBucket.allCases
             .map { "\($0.groupName)=\(buckets[$0, default: []].count)" }
             .joined(separator: ", ")
+    }
+
+    private static func isBritishIndianOceanTerritory(_ normalized: String) -> Bool {
+        let exclusionPatterns = [
+            "british\\s*indian\\s*ocean\\s*territory",
+            "英属印度洋领地",
+            "diego\\s*garcia",
+            "迪戈加西亚"
+        ]
+        return exclusionPatterns.contains { normalized.range(of: $0, options: .regularExpression) != nil }
     }
 }
