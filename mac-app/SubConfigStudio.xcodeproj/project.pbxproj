@@ -21,13 +21,14 @@
 		AA0000000000000000000112 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000212 /* AppModel.swift */; };
 		AA0000000000000000000113 /* SubConfigStudioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000213 /* SubConfigStudioApp.swift */; };
 		AA0000000000000000000114 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000214 /* ContentView.swift */; };
+		AA0000000000000000000115 /* ../subconverter/subconverter in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000315 /* ../subconverter/subconverter */; };
+		AA0000000000000000000116 /* ../subconverter/base in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000316 /* ../subconverter/base */; };
+		AA0000000000000000000117 /* ../subconverter/rules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000317 /* ../subconverter/rules */; };
+		AA0000000000000000000118 /* ../subconverter/snippets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000318 /* ../subconverter/snippets */; };
+		AA0000000000000000000119 /* AppRules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000319 /* AppRules */; };
 		AA0000000000000000000120 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000220 /* AppLogger.swift */; };
 		AA0000000000000000000121 /* ProxyCountryClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* ProxyCountryClassifier.swift */; };
-		AA0000000000000000000115 /* subconverter in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000315 /* subconverter */; };
-		AA0000000000000000000116 /* base in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000316 /* base */; };
-		AA0000000000000000000117 /* rules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000317 /* rules */; };
-		AA0000000000000000000118 /* snippets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000318 /* snippets */; };
-		AA0000000000000000000119 /* AppRules in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000319 /* AppRules */; };
+		AA0000000000000000000122 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000321 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,12 +49,13 @@
 		AA0000000000000000000220 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		AA0000000000000000000221 /* ProxyCountryClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyCountryClassifier.swift; sourceTree = "<group>"; };
 		AA0000000000000000000301 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA0000000000000000000315 /* subconverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = ../subconverter/subconverter; sourceTree = SOURCE_ROOT; };
-		AA0000000000000000000316 /* base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/base; sourceTree = SOURCE_ROOT; };
-		AA0000000000000000000317 /* rules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/rules; sourceTree = SOURCE_ROOT; };
-		AA0000000000000000000318 /* snippets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/snippets; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000315 /* ../subconverter/subconverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = ../subconverter/subconverter; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000316 /* ../subconverter/base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/base; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000317 /* ../subconverter/rules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/rules; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000318 /* ../subconverter/snippets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/snippets; sourceTree = SOURCE_ROOT; };
 		AA0000000000000000000319 /* AppRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = AppRules; sourceTree = "<group>"; };
 		AA0000000000000000000320 /* SubConfigStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubConfigStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000321 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,11 +145,12 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000301 /* Info.plist */,
+				AA0000000000000000000321 /* Assets.xcassets */,
 				AA0000000000000000000319 /* AppRules */,
-				AA0000000000000000000315 /* subconverter */,
-				AA0000000000000000000316 /* base */,
-				AA0000000000000000000317 /* rules */,
-				AA0000000000000000000318 /* snippets */,
+				AA0000000000000000000315 /* ../subconverter/subconverter */,
+				AA0000000000000000000316 /* ../subconverter/base */,
+				AA0000000000000000000317 /* ../subconverter/rules */,
+				AA0000000000000000000318 /* ../subconverter/snippets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -209,10 +212,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0000000000000000000115 /* subconverter in Resources */,
-				AA0000000000000000000116 /* base in Resources */,
-				AA0000000000000000000117 /* rules in Resources */,
-				AA0000000000000000000118 /* snippets in Resources */,
+				AA0000000000000000000122 /* Assets.xcassets in Resources */,
+				AA0000000000000000000115 /* ../subconverter/subconverter in Resources */,
+				AA0000000000000000000116 /* ../subconverter/base in Resources */,
+				AA0000000000000000000117 /* ../subconverter/rules in Resources */,
+				AA0000000000000000000118 /* ../subconverter/snippets in Resources */,
 				AA0000000000000000000119 /* AppRules in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -287,8 +291,10 @@
 		AA0000000000000000000803 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DCVFPN9NWA;
 				ENABLE_APP_SANDBOX = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SubConfigStudio/Resources/Info.plist;
@@ -306,8 +312,10 @@
 		AA0000000000000000000804 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DCVFPN9NWA;
 				ENABLE_APP_SANDBOX = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SubConfigStudio/Resources/Info.plist;
