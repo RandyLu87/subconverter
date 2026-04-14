@@ -54,7 +54,7 @@
 		AA0000000000000000000317 /* ../subconverter/rules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/rules; sourceTree = SOURCE_ROOT; };
 		AA0000000000000000000318 /* ../subconverter/snippets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/snippets; sourceTree = SOURCE_ROOT; };
 		AA0000000000000000000319 /* AppRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = AppRules; sourceTree = "<group>"; };
-		AA0000000000000000000320 /* SubConfigStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubConfigStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000320 /* clashconvert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = clashconvert.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000321 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -172,7 +172,7 @@
 			);
 			name = SubConfigStudio;
 			productName = SubConfigStudio;
-			productReference = AA0000000000000000000320 /* SubConfigStudio.app */;
+			productReference = AA0000000000000000000320 /* clashconvert.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -262,7 +262,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = clashconvert;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -281,7 +281,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = clashconvert;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -304,7 +304,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = clashconvert;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -325,7 +325,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.subconfigstudio.mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = clashconvert;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

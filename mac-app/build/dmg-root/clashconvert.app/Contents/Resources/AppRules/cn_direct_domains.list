@@ -1,0 +1,7 @@
+# Built-in mainland and private domain direct rules.
+GEOSITE,private,DIRECT
+GEOSITE,cn,DIRECT
+GEOSITE,google-cn,DIRECT
+GEOSITE,category-games@cn,DIRECT
+GEOSITE,category-game-platforms-download,DIRECT
+GEOSITE,category-public-tracker,DIRECT

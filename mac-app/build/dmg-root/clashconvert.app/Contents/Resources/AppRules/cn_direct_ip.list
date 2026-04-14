@@ -1,0 +1,3 @@
+# Built-in mainland and private IP direct rules.
+GEOIP,private,DIRECT,no-resolve
+GEOIP,cn,DIRECT,no-resolve
