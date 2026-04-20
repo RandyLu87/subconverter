@@ -8,6 +8,7 @@ struct PresetBuilder {
         "Binance",
         "OKX",
         "Bybit",
+        "Apple",
         "YouTube",
         "Netflix",
         "Other"
@@ -25,6 +26,7 @@ struct PresetBuilder {
         "binance.list",
         "okx.list",
         "bybit.list",
+        "apple.list",
         "youtube.list",
         "netflix.list"
     ]

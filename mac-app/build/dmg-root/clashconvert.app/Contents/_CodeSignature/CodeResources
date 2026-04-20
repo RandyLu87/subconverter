@@ -8,6 +8,10 @@
 		<data>
 		HWf30PYdx3ju1DBnE44QjFXAjXM=
 		</data>
+		<key>Resources/AppRules/apple.list</key>
+		<data>
+		3W9VY2VeEgcbF2CjYscEtsZIoeU=
+		</data>
 		<key>Resources/AppRules/binance.list</key>
 		<data>
 		NkI/huVKsYKtiCVgojykDXlc8xA=
@@ -1656,6 +1660,13 @@
 			<key>hash2</key>
 			<data>
 			U5vAC6OjZcssnknqAjVa2hLzh2fF0MV3bGbQIDkNptA=
+			</data>
+		</dict>
+		<key>Resources/AppRules/apple.list</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			wA+dob3sC71Yj/fp7GqaoAIP0NspgwmszJ4luvi8SxQ=
 			</data>
 		</dict>
 		<key>Resources/AppRules/binance.list</key>

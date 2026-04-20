@@ -6,48 +6,6 @@
 	<integer>11</integer>
 	<key>logs</key>
 	<dict>
-		<key>3A1863BC-BBFE-40E9-8612-0A2DCF19E6D1</key>
-		<dict>
-			<key>className</key>
-			<string>IDECommandLineBuildLog</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>3A1863BC-BBFE-40E9-8612-0A2DCF19E6D1.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>SubConfigStudio project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>SubConfigStudio</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
-			<key>timeStartedRecording</key>
-			<real>797829664.61395299</real>
-			<key>timeStoppedRecording</key>
-			<real>797829668.19094801</real>
-			<key>title</key>
-			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
-			<key>uniqueIdentifier</key>
-			<string>3A1863BC-BBFE-40E9-8612-0A2DCF19E6D1</string>
-		</dict>
 		<key>72B0D94D-F094-4CB6-9A53-7C3036E88FBE</key>
 		<dict>
 			<key>className</key>
@@ -90,7 +48,7 @@
 			<key>uniqueIdentifier</key>
 			<string>72B0D94D-F094-4CB6-9A53-7C3036E88FBE</string>
 		</dict>
-		<key>7D2C3E5F-7D20-4863-A449-AAA8FEEADA88</key>
+		<key>D71756E0-9F51-4E34-A00C-73C8A57FBE89</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -99,7 +57,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>7D2C3E5F-7D20-4863-A449-AAA8FEEADA88.xcactivitylog</string>
+			<string>D71756E0-9F51-4E34-A00C-73C8A57FBE89.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -124,13 +82,13 @@
 			<key>signature</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>timeStartedRecording</key>
-			<real>797829595.26441598</real>
+			<real>798383046.70493495</real>
 			<key>timeStoppedRecording</key>
-			<real>797829603.780846</real>
+			<real>798383054.61516094</real>
 			<key>title</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>uniqueIdentifier</key>
-			<string>7D2C3E5F-7D20-4863-A449-AAA8FEEADA88</string>
+			<string>D71756E0-9F51-4E34-A00C-73C8A57FBE89</string>
 		</dict>
 	</dict>
 </dict>

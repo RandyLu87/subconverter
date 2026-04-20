@@ -113,6 +113,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.ai
         case "Binance", "OKX", "Bybit":
             return ProxyGroupIconCatalog.crypto
+        case "Apple":
+            return ProxyGroupIconCatalog.apple
         case "YouTube":
             return ProxyGroupIconCatalog.youtube
         case "Netflix":
