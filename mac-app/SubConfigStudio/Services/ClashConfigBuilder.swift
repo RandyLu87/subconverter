@@ -36,10 +36,24 @@ struct ClashConfigBuilder {
             lines.append(contentsOf: renderCountryAutoGroup(bucket, names: countryBuckets[bucket, default: []]))
         }
         lines.append("")
+        lines.append("rule-providers:")
+        lines.append(contentsOf: renderEnhancedChinaDomainProvider())
+        lines.append("")
         lines.append("rules:")
         lines.append(contentsOf: ruleLines.map { "  - \($0)" })
 
         return lines.joined(separator: "\n") + "\n"
+    }
+
+    private func renderEnhancedChinaDomainProvider() -> [String] {
+        [
+            "  cn-domain:",
+            "    type: http",
+            "    behavior: domain",
+            "    format: mrs",
+            "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs\"",
+            "    interval: 86400"
+        ]
     }
 
     private func renderCountryAutoGroup(_ bucket: CountryBucket, names: [String]) -> [String] {
