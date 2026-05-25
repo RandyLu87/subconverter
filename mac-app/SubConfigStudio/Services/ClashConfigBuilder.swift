@@ -14,9 +14,13 @@ struct ClashConfigBuilder {
             "socks-port: 7891",
             "allow-lan: true",
             "mode: Rule",
-            "log-level: info",
-            "proxies:"
+            "log-level: info"
         ]
+        lines.append(contentsOf: renderDNS())
+        lines.append(contentsOf: renderSniffer())
+        lines.append(contentsOf: [
+            "proxies:"
+        ])
 
         lines.append(contentsOf: proxies.map { $0.renderedLine() })
         lines.append("")
@@ -53,6 +57,53 @@ struct ClashConfigBuilder {
             "    format: mrs",
             "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs\"",
             "    interval: 86400"
+        ]
+    }
+
+    private func renderDNS() -> [String] {
+        [
+            "dns:",
+            "  enable: true",
+            "  listen: 0.0.0.0:1053",
+            "  ipv6: false",
+            "  enhanced-mode: fake-ip",
+            "  fake-ip-range: 198.18.0.1/16",
+            "  fake-ip-filter:",
+            "    - \"*.lan\"",
+            "    - \"*.local\"",
+            "    - \"localhost.ptlogin2.qq.com\"",
+            "  default-nameserver:",
+            "    - 223.5.5.5",
+            "    - 119.29.29.29",
+            "  nameserver:",
+            "    - https://dns.alidns.com/dns-query",
+            "    - https://doh.pub/dns-query",
+            "  proxy-server-nameserver:",
+            "    - https://dns.alidns.com/dns-query",
+            ""
+        ]
+    }
+
+    private func renderSniffer() -> [String] {
+        [
+            "sniffer:",
+            "  enable: true",
+            "  parse-pure-ip: true",
+            "  sniff:",
+            "    HTTP:",
+            "      ports:",
+            "        - 80",
+            "        - 8080-8880",
+            "      override-destination: true",
+            "    TLS:",
+            "      ports:",
+            "        - 443",
+            "        - 8443",
+            "    QUIC:",
+            "      ports:",
+            "        - 443",
+            "        - 8443",
+            ""
         ]
     }
 
@@ -123,6 +174,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.claudeCode
         case "Gemini":
             return ProxyGroupIconCatalog.gemini
+        case "Google":
+            return ProxyGroupIconCatalog.google
         case "OpenAI":
             return ProxyGroupIconCatalog.ai
         case "Binance", "OKX", "Bybit":
@@ -133,6 +186,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.youtube
         case "Netflix":
             return ProxyGroupIconCatalog.netflix
+        case "Steam":
+            return ProxyGroupIconCatalog.steam
         case "Other":
             return ProxyGroupIconCatalog.final
         default:

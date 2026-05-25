@@ -36,6 +36,10 @@
 		<data>
 		iHzE/Kvk6NRkb0rG2mxDwbVF/O4=
 		</data>
+		<key>Resources/AppRules/google.list</key>
+		<data>
+		7yrSZ7tz4LiMyOA5FP8qyFOvRVM=
+		</data>
 		<key>Resources/AppRules/netflix.list</key>
 		<data>
 		cCBwKjQlQVSuhei5tyZ8R+fjhyk=
@@ -48,13 +52,17 @@
 		<data>
 		L4PeEAznoiEHguuqWFK98F0Ezy8=
 		</data>
+		<key>Resources/AppRules/steam.list</key>
+		<data>
+		0cyiLFpqRS0TfppL6T4iM09tLXQ=
+		</data>
 		<key>Resources/AppRules/youtube.list</key>
 		<data>
 		XJVGapoDPMD2oewPnxLmCzb+iLI=
 		</data>
 		<key>Resources/Assets.car</key>
 		<data>
-		LRQIbpDeQqU58PgKE4FASWgwNv4=
+		toeXWNqCwg9fBnauZvCGzmGg5BU=
 		</data>
 		<key>Resources/base/GeneralClashConfig.yml</key>
 		<data>
@@ -1650,7 +1658,7 @@
 		</data>
 		<key>Resources/subconverter</key>
 		<data>
-		/S4OVPn0qXjqbOifSzCVUInCvpc=
+		TTXH8ELCXY3YJ3tyry7ewztj3m0=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -1711,6 +1719,13 @@
 			w81R7Nd4MI/tX5dt9FWT0wKpLze6MHnmfbOswLqkRGo=
 			</data>
 		</dict>
+		<key>Resources/AppRules/google.list</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			iU3wk9prIPb7+rvZZG2PxkTSYRmRJVFjbYE2T7aepHM=
+			</data>
+		</dict>
 		<key>Resources/AppRules/netflix.list</key>
 		<dict>
 			<key>hash2</key>
@@ -1732,6 +1747,13 @@
 			O+XxOkI28T911fo+m4yo8lASx6gZrmfUunO9pcSewuw=
 			</data>
 		</dict>
+		<key>Resources/AppRules/steam.list</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CtJwFSe9pTfM6QE/RPhF9217Ku/6ONh6pbrTcRAxABU=
+			</data>
+		</dict>
 		<key>Resources/AppRules/youtube.list</key>
 		<dict>
 			<key>hash2</key>
@@ -1743,7 +1765,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			+lj/6Fuj+3sGuL/5ieoYFktZ3wS6vdRuyNbbu/CtlsY=
+			JrouJ4XrSSOtjoq+gvsazMV1RjYrZvXqcaJjFlAB/Xo=
 			</data>
 		</dict>
 		<key>Resources/base/GeneralClashConfig.yml</key>
@@ -4536,7 +4558,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			EEHwC7AGLKfRhV1gdk3LwsOB2di5yY5391xRJAbmkps=
+			CBYvxsSSOHksRqwxenrg/L2/lSQALeywfHzBy5dyoqo=
 			</data>
 		</dict>
 	</dict>

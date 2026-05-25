@@ -1,0 +1,232 @@
+{
+  "source": "/Users/user/Documents/develop/subconverter/mac-app/SubConfigStudio/Views/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Subscription",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import YAML",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sources",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Mix subscription URLs and local Clash YAML files. Order is preserved during merge.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Last generated proxies: %lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 247
+        }
+      },
+      {
+        "comment": "",
+        "key": "Preset",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Built-in direct rules for private, mainland domains, and mainland IP ranges are always enabled.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "Country Auto Groups",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 187
+        }
+      },
+      {
+        "comment": "",
+        "key": "Core Groups",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 198
+        }
+      },
+      {
+        "comment": "",
+        "key": "Direct Overrides",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 209
+        }
+      },
+      {
+        "comment": "",
+        "key": "One entry per line. Bare domains default to DOMAIN-SUFFIX,<domain>,DIRECT.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 211
+        }
+      },
+      {
+        "comment": "",
+        "key": "Examples: appykt.com, DOMAIN,foo.example,DIRECT, DOMAIN-SUFFIX,bar.com,DIRECT",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 224
+        }
+      },
+      {
+        "comment": "",
+        "key": "Routing Model",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 232
+        }
+      },
+      {
+        "comment": "",
+        "key": "Core groups",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 234
+        }
+      },
+      {
+        "comment": "",
+        "key": "Other",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 235
+        }
+      },
+      {
+        "comment": "",
+        "key": "Default",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 236
+        }
+      },
+      {
+        "comment": "",
+        "key": "Country auto groups",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "Each policy group: Default -> DIRECT -> country auto groups -> all proxies",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 238
+        }
+      },
+      {
+        "comment": "",
+        "key": "Generate",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 270
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export YAML",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 277
+        }
+      },
+      {
+        "comment": "",
+        "key": "Preview & Export",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 264
+        }
+      },
+      {
+        "comment": "",
+        "key": "Generate a configuration to preview the final Clash YAML.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 288
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Subscription",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 345
+        }
+      },
+      {
+        "comment": "",
+        "key": "Display name",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 348
+        }
+      },
+      {
+        "comment": "",
+        "key": "Subscription URL",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 349
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 354
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 357
+        }
+      }
+    ]
+  },
+  "version": 1
+}

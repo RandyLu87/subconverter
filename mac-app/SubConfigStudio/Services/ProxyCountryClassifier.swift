@@ -6,10 +6,12 @@ enum ProxyGroupIconCatalog {
     static let ai = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Color/ChatGPT.png"
     static let claudeCode = "https://raw.githubusercontent.com/lobehub/lobe-icons/8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/claudecode-color.png"
     static let gemini = "https://raw.githubusercontent.com/lobehub/lobe-icons/8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/gemini-color.png"
+    static let google = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Google.png"
     static let crypto = "https://www.naiixi.com/Crypto.png"
     static let apple = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Apple.png"
     static let youtube = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/YouTube.png"
     static let netflix = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Netflix.png"
+    static let steam = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Steam.png"
     static let final = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png"
 }
 

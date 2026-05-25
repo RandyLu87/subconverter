@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>logFormatVersion</key>
-	<integer>11</integer>
+	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>414F828E-F6E9-40D6-8E1A-2EBA4D91A86C</key>
+		<key>662D99A7-8821-414E-B385-EFD718091D21</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>414F828E-F6E9-40D6-8E1A-2EBA4D91A86C.xcactivitylog</string>
+			<string>662D99A7-8821-414E-B385-EFD718091D21.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -40,15 +40,15 @@
 			<key>signature</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>timeStartedRecording</key>
-			<real>798734304.13570702</real>
+			<real>801374303.79130805</real>
 			<key>timeStoppedRecording</key>
-			<real>798734324.52854002</real>
+			<real>801374313.47648501</real>
 			<key>title</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>uniqueIdentifier</key>
-			<string>414F828E-F6E9-40D6-8E1A-2EBA4D91A86C</string>
+			<string>662D99A7-8821-414E-B385-EFD718091D21</string>
 		</dict>
-		<key>D71756E0-9F51-4E34-A00C-73C8A57FBE89</key>
+		<key>C4272502-C926-451D-9DA2-080901F05772</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -57,7 +57,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>D71756E0-9F51-4E34-A00C-73C8A57FBE89.xcactivitylog</string>
+			<string>C4272502-C926-451D-9DA2-080901F05772.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -82,13 +82,13 @@
 			<key>signature</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>timeStartedRecording</key>
-			<real>798383046.70493495</real>
+			<real>800954701.44403195</real>
 			<key>timeStoppedRecording</key>
-			<real>798383054.61516094</real>
+			<real>800954712.02418804</real>
 			<key>title</key>
 			<string>Archiving project SubConfigStudio with scheme SubConfigStudio</string>
 			<key>uniqueIdentifier</key>
-			<string>D71756E0-9F51-4E34-A00C-73C8A57FBE89</string>
+			<string>C4272502-C926-451D-9DA2-080901F05772</string>
 		</dict>
 	</dict>
 </dict>
