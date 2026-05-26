@@ -17,6 +17,10 @@ enum AppPaths {
         rootDirectory.appendingPathComponent("imports", isDirectory: true)
     }
 
+    static var subscriptionCacheDirectory: URL {
+        rootDirectory.appendingPathComponent("subscription-cache", isDirectory: true)
+    }
+
     static var logsDirectory: URL {
         rootDirectory.appendingPathComponent("logs", isDirectory: true)
     }
@@ -36,7 +40,7 @@ enum AppPaths {
     static func ensureDirectories() throws {
         let manager = FileManager.default
         try migrateLegacyRootIfNeeded(using: manager)
-        for directory in [rootDirectory, importsDirectory, logsDirectory, runtimeDirectory, presetsDirectory] {
+        for directory in [rootDirectory, importsDirectory, subscriptionCacheDirectory, logsDirectory, runtimeDirectory, presetsDirectory] {
             try manager.createDirectory(at: directory, withIntermediateDirectories: true)
         }
     }

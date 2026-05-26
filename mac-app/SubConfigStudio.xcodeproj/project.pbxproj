@@ -29,6 +29,7 @@
 		AA0000000000000000000120 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000220 /* AppLogger.swift */; };
 		AA0000000000000000000121 /* ProxyCountryClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* ProxyCountryClassifier.swift */; };
 		AA0000000000000000000122 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000321 /* Assets.xcassets */; };
+		AA0000000000000000000123 /* SubscriptionPrefetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000223 /* SubscriptionPrefetcher.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		AA0000000000000000000319 /* AppRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = AppRules; sourceTree = "<group>"; };
 		AA0000000000000000000320 /* clashconvert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = clashconvert.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000321 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0000000000000000000223 /* SubscriptionPrefetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPrefetcher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +130,7 @@
 				AA0000000000000000000207 /* ProxyListParser.swift */,
 				AA0000000000000000000204 /* RuntimeInstaller.swift */,
 				AA0000000000000000000211 /* SourceImportService.swift */,
+				AA0000000000000000000223 /* SubscriptionPrefetcher.swift */,
 				AA0000000000000000000208 /* YAMLPostProcessor.swift */,
 			);
 			path = Services;
@@ -244,6 +247,7 @@
 				AA0000000000000000000109 /* ClashConfigBuilder.swift in Sources */,
 				AA0000000000000000000110 /* ConfigGenerationService.swift in Sources */,
 				AA0000000000000000000111 /* SourceImportService.swift in Sources */,
+				AA0000000000000000000123 /* SubscriptionPrefetcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
