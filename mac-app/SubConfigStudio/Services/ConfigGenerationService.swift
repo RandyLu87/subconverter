@@ -11,22 +11,19 @@ final class ConfigGenerationService {
     private let presetBuilder: PresetBuilder
     private let postProcessor: YAMLPostProcessor
     private let builder: ClashConfigBuilder
-    private let prefetcher: SubscriptionPrefetcher
 
     init(
         runtimeInstaller: RuntimeInstaller = RuntimeInstaller(),
         engine: EngineController,
         presetBuilder: PresetBuilder = PresetBuilder(),
         postProcessor: YAMLPostProcessor = YAMLPostProcessor(),
-        builder: ClashConfigBuilder = ClashConfigBuilder(),
-        prefetcher: SubscriptionPrefetcher = SubscriptionPrefetcher()
+        builder: ClashConfigBuilder = ClashConfigBuilder()
     ) {
         self.runtimeInstaller = runtimeInstaller
         self.engine = engine
         self.presetBuilder = presetBuilder
         self.postProcessor = postProcessor
         self.builder = builder
-        self.prefetcher = prefetcher
     }
 
     func prepareRuntime() throws -> RuntimeContext {
@@ -48,9 +45,8 @@ final class ConfigGenerationService {
         try presetBuilder.buildExternalConfig(at: configURL)
 
         try await engine.start(using: runtime)
-        let resolvedSourceValues = await resolveSourceValues(enabledSources)
         let payload = try await engine.fetchProxyList(
-            for: resolvedSourceValues,
+            for: enabledSources.map(\.value),
             configPath: "presets/current.toml"
         )
 
@@ -70,33 +66,5 @@ final class ConfigGenerationService {
         AppLogger.log("Final YAML size: \(yaml.utf8.count) bytes.")
 
         return GenerationResult(yaml: yaml, proxyCount: normalized.count)
-    }
-
-    /// Prefetches subscription URLs locally so the engine reads a Clash-friendly file
-    /// instead of hitting the upstream itself. Falls back to the raw URL if prefetch
-    /// fails so the engine still gets a chance to handle it directly.
-    private func resolveSourceValues(_ sources: [SourceItem]) async -> [String] {
-        var resolved: [String] = []
-        for source in sources {
-            switch source.kind {
-            case .subscriptionURL:
-                do {
-                    let path = try await prefetcher.prefetch(
-                        urlString: source.value,
-                        sourceID: source.id
-                    )
-                    AppLogger.log("Using local copy of subscription \(source.name) at \(path).")
-                    resolved.append(path)
-                } catch {
-                    AppLogger.log(
-                        "Prefetch failed for \(source.name) (\(error.localizedDescription)); falling back to raw URL."
-                    )
-                    resolved.append(source.value)
-                }
-            case .importedYAML:
-                resolved.append(source.value)
-            }
-        }
-        return resolved
     }
 }

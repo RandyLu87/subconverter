@@ -16,11 +16,6 @@ struct ContentView: View {
         }
         .padding(16)
         .background(Color(nsColor: .windowBackgroundColor))
-        .sheet(isPresented: $model.showingAddSubscriptionSheet) {
-            AddSubscriptionSheet(model: model)
-                .frame(width: 460)
-                .padding(20)
-        }
     }
 }
 
@@ -50,15 +45,9 @@ private struct SourcesPanel: View {
             }
             .listStyle(.inset)
 
-            HStack {
-                Button("Add Subscription") {
-                    model.showingAddSubscriptionSheet = true
-                }
-
-                Button("Import YAML") {
-                    Task {
-                        await model.openImportPanel()
-                    }
+            Button("Import YAML") {
+                Task {
+                    await model.openImportPanel()
                 }
             }
         }
@@ -70,7 +59,7 @@ private struct SourcesPanel: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Sources")
                 .font(.title2.weight(.semibold))
-            Text("Mix subscription URLs and local Clash YAML files. Order is preserved during merge.")
+            Text("Import local Clash YAML files. Order is preserved during merge.")
                 .foregroundStyle(.secondary)
         }
     }
@@ -336,29 +325,3 @@ private struct CodePreviewTextView: NSViewRepresentable {
     }
 }
 
-private struct AddSubscriptionSheet: View {
-    @ObservedObject var model: AppModel
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Add Subscription")
-                .font(.title3.weight(.semibold))
-
-            TextField("Display name", text: $model.newSubscriptionName)
-            TextField("Subscription URL", text: $model.newSubscriptionURL, axis: .vertical)
-                .lineLimit(3...6)
-
-            HStack {
-                Spacer()
-                Button("Cancel") {
-                    dismiss()
-                }
-                Button("Save") {
-                    model.addSubscription()
-                }
-                .keyboardShortcut(.defaultAction)
-            }
-        }
-    }
-}

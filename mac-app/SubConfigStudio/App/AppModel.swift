@@ -14,9 +14,6 @@ final class AppModel: ObservableObject {
     @Published var lastGeneratedAt: Date?
     @Published var lastGeneratedProxyCount: Int?
     @Published var customDirectRulesText = ""
-    @Published var showingAddSubscriptionSheet = false
-    @Published var newSubscriptionName = ""
-    @Published var newSubscriptionURL = ""
 
     private let store = AppStateStore()
     private let engine = EngineController()
@@ -37,33 +34,6 @@ final class AppModel: ObservableObject {
 
     var canGenerate: Bool {
         sortedSources.contains(where: \.enabled)
-    }
-
-    func addSubscription() {
-        let trimmedURL = newSubscriptionURL.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedName = newSubscriptionName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedURL.isEmpty else {
-            statusMessage = "Subscription URL is required."
-            return
-        }
-
-        let source = SourceItem(
-            name: trimmedName.isEmpty ? "Subscription \(sources.count + 1)" : trimmedName,
-            kind: .subscriptionURL,
-            value: trimmedURL,
-            enabled: true,
-            order: nextOrder(),
-            lastStatus: .idle
-        )
-
-        sources.append(source)
-        normalizeOrders()
-        persist()
-        newSubscriptionName = ""
-        newSubscriptionURL = ""
-        showingAddSubscriptionSheet = false
-        statusMessage = "Subscription source added."
-        AppLogger.log("Added subscription source \(source.name).")
     }
 
     func removeSource(_ source: SourceItem) {
