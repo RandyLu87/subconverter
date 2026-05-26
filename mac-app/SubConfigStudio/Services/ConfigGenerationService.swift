@@ -85,7 +85,7 @@ final class ConfigGenerationService {
                         urlString: source.value,
                         sourceID: source.id
                     )
-                    AppLogger.log("Prefetched subscription \(source.name) to \(path).")
+                    AppLogger.log("Using local copy of subscription \(source.name) at \(path).")
                     resolved.append(path)
                 } catch {
                     AppLogger.log(
