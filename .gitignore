@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Xcode user state
+**/xcuserdata/
+
+# subconverter cache and runtime
+subconverter/cache/
+
+# Build artifacts for src/subconverter
+src/subconverter/.build-deps/
+src/subconverter/CMakeCache.txt
+src/subconverter/CMakeFiles/
+src/subconverter/Makefile
+src/subconverter/cmake_install.cmake
+src/subconverter/subconverter
+src/subconverter/subconverter.exe
+src/subconverter/build/
+src/subconverter/cmake-build-debug/
+src/subconverter/base/cache/
+
+# Editor / IDE
+.vscode/
+.idea/

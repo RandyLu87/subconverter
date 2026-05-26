@@ -1,0 +1,24 @@
+# Subconverter 订阅转换配置
+# 复制此文件为 config.yaml 并填写你的配置
+
+# 转换服务地址
+serviceUrl: "http://127.0.0.1:25500/sub"
+
+# 机场订阅地址 (替换为你的实际订阅链接)
+targetUrl: "https://your-airport-subscription-url.com/subscribe?token=xxx"
+
+# 配置文件 (支持本地路径或远程URL)
+config: "https://raw.githubusercontent.com/magicowl/openclash/main/metaconfig.ini"
+
+# 输出文件路径 (支持相对路径或绝对路径)
+output: "./clash.yaml"
+
+# 排除节点关键词 (过滤无效节点: 流量提示/说明/防失联等)
+exclude: "500.00|流量|套餐|到期|剩余|重置|官网|网站|最新网址|防失联|失联|官网地址|公告|通知|TG|Telegram|电报|群|频道|说明|使用说明|QQ群|客服|工单|订阅|Expire|Traffic|Reset|Remaining|Official|Website|Game|游戏|遊戲|倍率|專用"
+
+# 其他可选参数
+target: "clash"           # 转换目标格式
+emoji: true               # 节点名称添加国旗emoji
+list: false               # 是否仅输出节点列表
+udp: true                 # 启用UDP
+scv: false                # 跳过证书验证
