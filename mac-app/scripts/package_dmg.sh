@@ -70,6 +70,81 @@ fi
 
 echo "==> Using signing identity: $SIGNING_IDENTITY"
 
+# Vendor non-system dylibs that the bundled subconverter engine links against
+# (yaml-cpp, pcre2 from Homebrew, plus any transitive deps) so the app works on
+# machines that don't have Homebrew or the matching library versions installed.
+function vendor_dylibs() {
+  # All variables (including the loop variable `dep`) must be `local` because
+  # the function recurses to follow transitive deps, and zsh function variables
+  # are dynamically scoped by default — without `local`, the inner recursion's
+  # `read` would clobber the outer call's `dep` once it hits EOF.
+  local binary="$1"
+  local frameworks_dir="$2"
+  local dep name target
+  chmod u+w "$binary"
+
+  while IFS= read -r dep; do
+    [[ -z "$dep" ]] && continue
+    name=$(basename "$dep")
+    target="$frameworks_dir/$name"
+
+    if [[ ! -f "$target" ]]; then
+      echo "    vendor $name <= $dep"
+      cp "$dep" "$target"
+      chmod u+w "$target"
+      install_name_tool -id "@rpath/$name" "$target"
+      vendor_dylibs "$target" "$frameworks_dir"
+    fi
+
+    install_name_tool -change "$dep" "@rpath/$name" "$binary"
+  done < <(
+    otool -L "$binary" 2>/dev/null \
+      | tail -n +2 \
+      | awk '{print $1}' \
+      | grep -vE '^(/usr/lib/|/System/|@)' \
+      || true
+  )
+}
+
+SUBCONVERTER_BINARY="$APP_PATH/Contents/Resources/subconverter"
+FRAMEWORKS_DIR="$APP_PATH/Contents/Frameworks"
+
+if [[ -f "$SUBCONVERTER_BINARY" ]]; then
+  echo "==> Vendoring subconverter dylibs into Contents/Frameworks"
+  mkdir -p "$FRAMEWORKS_DIR"
+  vendor_dylibs "$SUBCONVERTER_BINARY" "$FRAMEWORKS_DIR"
+
+  # The engine binary was built with absolute LC_RPATH entries into the developer's
+  # build tree and Homebrew Cellar. dyld walks RPATHs in order, so a stale Homebrew
+  # path that still happens to exist on the build machine will silently win over
+  # the bundled copy. Strip all existing RPATHs and add the one we control.
+  while IFS= read -r stale_rpath; do
+    [[ -z "$stale_rpath" ]] && continue
+    install_name_tool -delete_rpath "$stale_rpath" "$SUBCONVERTER_BINARY" || true
+  done < <(
+    otool -l "$SUBCONVERTER_BINARY" | awk '
+      /^Load command/ { cmd = "" }
+      $1 == "cmd" { cmd = $2 }
+      cmd == "LC_RPATH" && $1 == "path" {
+        sub(/^[[:space:]]*path /, "")
+        sub(/ \(offset [0-9]+\)$/, "")
+        print
+      }
+    '
+  )
+  install_name_tool -add_rpath "@loader_path/../Frameworks" "$SUBCONVERTER_BINARY"
+
+  echo "==> Re-signing vendored dylibs and subconverter binary"
+  for dylib in "$FRAMEWORKS_DIR"/*.dylib(N); do
+    codesign --force --sign "$SIGNING_IDENTITY" --timestamp=none "$dylib"
+  done
+  codesign --force --sign "$SIGNING_IDENTITY" --timestamp=none "$SUBCONVERTER_BINARY"
+
+  echo "==> Re-signing app bundle"
+  codesign --force --deep --sign "$SIGNING_IDENTITY" --timestamp=none "$APP_PATH"
+  codesign --verify --deep --strict "$APP_PATH"
+fi
+
 mkdir -p "$STAGING_PATH"
 rsync -a "$APP_PATH" "$STAGING_PATH/"
 ln -s /Applications "$STAGING_PATH/Applications"
