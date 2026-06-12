@@ -12,6 +12,7 @@ enum ProxyGroupIconCatalog {
     static let youtube = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/YouTube.png"
     static let netflix = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Netflix.png"
     static let steam = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Steam.png"
+    static let futu = "https://raw.githubusercontent.com/lxfcx/QuanX-icon-rule/main/icon/futunn.png"
     static let final = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png"
 }
 

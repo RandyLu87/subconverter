@@ -188,6 +188,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.netflix
         case "Steam":
             return ProxyGroupIconCatalog.steam
+        case "Futu":
+            return ProxyGroupIconCatalog.futu
         case "Other":
             return ProxyGroupIconCatalog.final
         default:

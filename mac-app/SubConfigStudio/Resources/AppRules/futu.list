@@ -1,0 +1,27 @@
+# Futu / 富途牛牛 / moomoo broker domains.
+# Loaded with priority ABOVE the built-in CN direct rules so Futu traffic
+# is routed through the Futu policy group instead of being matched by
+# RULE-SET,cn-domain / GEOSITE,cn and forced to DIRECT.
+DOMAIN-SUFFIX,futunn.com,Futu
+DOMAIN-SUFFIX,futuhk.com,Futu
+DOMAIN-SUFFIX,futuhkapp.com,Futu
+DOMAIN-SUFFIX,futuhn.com,Futu
+DOMAIN-SUFFIX,futu5.com,Futu
+DOMAIN-SUFFIX,futu.com,Futu
+DOMAIN-SUFFIX,futu.cn,Futu
+DOMAIN-SUFFIX,futufin.com,Futu
+DOMAIN-SUFFIX,futuesop.com,Futu
+DOMAIN-SUFFIX,futuholdings.com,Futu
+DOMAIN-SUFFIX,futuniuniu.com,Futu
+DOMAIN-SUFFIX,futustatic.com,Futu
+DOMAIN-SUFFIX,futusg.com,Futu
+DOMAIN-SUFFIX,futubull.cn,Futu
+DOMAIN-SUFFIX,futuchain.com,Futu
+DOMAIN-SUFFIX,futunnimg.com,Futu
+DOMAIN-SUFFIX,fututrade.com,Futu
+DOMAIN-SUFFIX,moomoo.com,Futu
+DOMAIN-SUFFIX,moomooapp.com,Futu
+DOMAIN-SUFFIX,moomoobull.com,Futu
+DOMAIN-SUFFIX,moomoocn.com,Futu
+DOMAIN-SUFFIX,moomooequity.com,Futu
+DOMAIN-SUFFIX,moomootrustee.com,Futu

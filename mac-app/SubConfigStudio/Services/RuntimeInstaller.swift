@@ -13,6 +13,13 @@ struct RuntimeInstaller {
         try AppPaths.ensureDirectories()
 
         let runtimeRoot = AppPaths.runtimeDirectory
+        // The packaged .app vendors subconverter's Homebrew dylibs into
+        // Contents/Frameworks and rewrites the binary to find them via the
+        // rpath `@loader_path/../Frameworks`. Since the binary is copied out to
+        // <root>/runtime/subconverter, that rpath resolves to <root>/Frameworks,
+        // so the dylibs must be copied there too — otherwise dyld fails to load
+        // libyaml-cpp / libpcre2 and the engine exits before becoming ready.
+        try copyFrameworksIfPresent(to: AppPaths.rootDirectory.appendingPathComponent("Frameworks", isDirectory: true))
         try copyBundleResource(named: "subconverter", to: runtimeRoot.appendingPathComponent("subconverter"), executable: true)
         try copyBundleFolder(named: "base", to: runtimeRoot.appendingPathComponent("base"))
         try copyBundleFolder(named: "rules", to: runtimeRoot.appendingPathComponent("rules"))
@@ -29,6 +36,17 @@ struct RuntimeInstaller {
             binaryURL: runtimeRoot.appendingPathComponent("subconverter"),
             prefURL: prefURL
         )
+    }
+
+    private func copyFrameworksIfPresent(to destination: URL) throws {
+        // Debug builds run against Homebrew dylibs on the dev machine and have
+        // no vendored Frameworks directory, so this is a no-op when absent.
+        guard let source = Bundle.main.privateFrameworksURL,
+              FileManager.default.fileExists(atPath: source.path) else {
+            return
+        }
+
+        try replaceItemIfNeeded(source: source, destination: destination, isDirectory: true)
     }
 
     private func copyBundleFolder(named name: String, to destination: URL) throws {

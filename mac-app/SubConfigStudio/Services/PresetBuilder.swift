@@ -8,12 +8,21 @@ struct PresetBuilder {
         "Binance",
         "OKX",
         "Bybit",
+        "Futu",
         "Apple",
         "YouTube",
         "Google",
         "Netflix",
         "Steam",
         "Other"
+    ]
+
+    // Service rules that must take precedence over the built-in CN direct
+    // rules. Futu (富途牛牛) domains are otherwise swallowed by
+    // RULE-SET,cn-domain / GEOSITE,cn and forced to DIRECT, so they have to
+    // be evaluated before the CN block.
+    static let priorityServiceRuleFiles = [
+        "futu.list"
     ]
 
     static let builtinDirectRuleFiles = [
@@ -51,11 +60,12 @@ struct PresetBuilder {
     }
 
     func loadRuleLines(from rulesDirectory: URL, customDirectRulesText: String = "") throws -> [String] {
+        let priorityServiceRules = try loadRuleLines(from: Self.priorityServiceRuleFiles, in: rulesDirectory)
         let builtinDirectRules = try loadRuleLines(from: Self.builtinDirectRuleFiles, in: rulesDirectory)
         let customDirectRules = try normalizeCustomDirectRules(from: customDirectRulesText)
         let serviceRules = try loadRuleLines(from: Self.serviceRuleFiles, in: rulesDirectory)
 
-        return builtinDirectRules + customDirectRules + serviceRules + ["MATCH,Other"]
+        return priorityServiceRules + builtinDirectRules + customDirectRules + serviceRules + ["MATCH,Other"]
     }
 
     private func loadRuleLines(from files: [String], in rulesDirectory: URL) throws -> [String] {
