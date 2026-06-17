@@ -3,12 +3,25 @@ import Foundation
 struct ClashConfigBuilder {
     private let probeURL = "http://www.gstatic.com/generate_204"
 
+    // Nodes whose name contains this keyword are gathered into a dedicated
+    // self-built select group. That group is then offered as an option inside
+    // every non-country select group, and is omitted entirely when no matching
+    // node exists.
+    private static let selfBuiltKeyword = "自建"
+    private static let selfBuiltGroupName = "自建"
+
     func build(proxies: [ProxyEntry], ruleLines: [String]) -> String {
         let names = proxies.map(\.name)
         let countryBuckets = ProxyCountryClassifier.bucketed(names: names)
         let availableCountryGroups = CountryBucket.allCases.filter { !countryBuckets[$0, default: []].isEmpty }
         let countryGroupNames = availableCountryGroups.map(\.groupName)
         AppLogger.log("Country auto group summary: \(ProxyCountryClassifier.summary(for: countryBuckets))")
+
+        let selfBuiltNames = names.filter { $0.contains(Self.selfBuiltKeyword) }
+        let selfBuiltGroupName = selfBuiltNames.isEmpty ? nil : Self.selfBuiltGroupName
+        if let selfBuiltGroupName {
+            AppLogger.log("Self-built group \"\(selfBuiltGroupName)\" with \(selfBuiltNames.count) node(s).")
+        }
         var lines: [String] = [
             "port: 7890",
             "socks-port: 7891",
@@ -31,11 +44,15 @@ struct ClashConfigBuilder {
                     group,
                     names: names,
                     countryGroupNames: countryGroupNames,
-                    preferredCountryGroupNames: preferredCountryGroups(for: group, availableCountryGroups: availableCountryGroups)
+                    preferredCountryGroupNames: preferredCountryGroups(for: group, availableCountryGroups: availableCountryGroups),
+                    selfBuiltGroupName: selfBuiltGroupName
                 )
             )
         }
-        lines.append(contentsOf: renderDefaultGroup(names, countryGroupNames: countryGroupNames))
+        lines.append(contentsOf: renderDefaultGroup(names, countryGroupNames: countryGroupNames, selfBuiltGroupName: selfBuiltGroupName))
+        if let selfBuiltGroupName {
+            lines.append(contentsOf: renderSelfBuiltGroup(named: selfBuiltGroupName, names: selfBuiltNames))
+        }
         for bucket in availableCountryGroups {
             lines.append(contentsOf: renderCountryAutoGroup(bucket, names: countryBuckets[bucket, default: []]))
         }
@@ -120,28 +137,45 @@ struct ClashConfigBuilder {
         return lines
     }
 
-    private func renderDefaultGroup(_ names: [String], countryGroupNames: [String]) -> [String] {
+    private func renderDefaultGroup(_ names: [String], countryGroupNames: [String], selfBuiltGroupName: String?) -> [String] {
         renderSelectGroup(
             named: "Default",
             icon: ProxyGroupIconCatalog.proxy,
             names: names,
             countryGroupNames: countryGroupNames,
-            includeDefault: false
+            includeDefault: false,
+            selfBuiltGroupName: selfBuiltGroupName
         )
+    }
+
+    // The self-built group uses the same icon as Default and lists only the
+    // nodes whose name matched the keyword. It deliberately does not list
+    // itself as an option, so it is rendered separately from renderSelectGroup.
+    private func renderSelfBuiltGroup(named name: String, names: [String]) -> [String] {
+        var lines = [
+            "  - name: \(quoted(name))",
+            "    icon: \(quoted(ProxyGroupIconCatalog.proxy))",
+            "    type: select",
+            "    proxies:"
+        ]
+        lines.append(contentsOf: names.map { "      - \(quoted($0))" })
+        return lines
     }
 
     private func renderPolicyGroup(
         _ group: String,
         names: [String],
         countryGroupNames: [String],
-        preferredCountryGroupNames: [String]
+        preferredCountryGroupNames: [String],
+        selfBuiltGroupName: String?
     ) -> [String] {
         renderSelectGroup(
             named: group,
             icon: icon(for: group),
             names: names,
             countryGroupNames: preferredCountryGroupNames.isEmpty ? countryGroupNames : preferredCountryGroupNames,
-            includeDefault: true
+            includeDefault: true,
+            selfBuiltGroupName: selfBuiltGroupName
         )
     }
 
@@ -150,7 +184,8 @@ struct ClashConfigBuilder {
         icon: String,
         names: [String],
         countryGroupNames: [String],
-        includeDefault: Bool
+        includeDefault: Bool,
+        selfBuiltGroupName: String?
     ) -> [String] {
         var lines = [
             "  - name: \(quoted(name))",
@@ -164,6 +199,9 @@ struct ClashConfigBuilder {
         }
         lines.append("      - \(quoted("DIRECT"))")
         lines.append(contentsOf: countryGroupNames.map { "      - \(quoted($0))" })
+        if let selfBuiltGroupName {
+            lines.append("      - \(quoted(selfBuiltGroupName))")
+        }
         lines.append(contentsOf: names.map { "      - \(quoted($0))" })
         return lines
     }
