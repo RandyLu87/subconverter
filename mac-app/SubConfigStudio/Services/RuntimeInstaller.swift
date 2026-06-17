@@ -13,40 +13,120 @@ struct RuntimeInstaller {
         try AppPaths.ensureDirectories()
 
         let runtimeRoot = AppPaths.runtimeDirectory
-        // The packaged .app vendors subconverter's Homebrew dylibs into
-        // Contents/Frameworks and rewrites the binary to find them via the
-        // rpath `@loader_path/../Frameworks`. Since the binary is copied out to
-        // <root>/runtime/subconverter, that rpath resolves to <root>/Frameworks,
-        // so the dylibs must be copied there too — otherwise dyld fails to load
-        // libyaml-cpp / libpcre2 and the engine exits before becoming ready.
-        try copyFrameworksIfPresent(to: AppPaths.rootDirectory.appendingPathComponent("Frameworks", isDirectory: true))
-        try copyBundleResource(named: "subconverter", to: runtimeRoot.appendingPathComponent("subconverter"), executable: true)
-        try copyBundleFolder(named: "base", to: runtimeRoot.appendingPathComponent("base"))
-        try copyBundleFolder(named: "rules", to: runtimeRoot.appendingPathComponent("rules"))
-        try copyBundleFolder(named: "snippets", to: runtimeRoot.appendingPathComponent("snippets"))
-        try copyBundleFolder(named: "AppRules", to: runtimeRoot.appendingPathComponent("AppRules"))
+        // The packaged (release) .app vendors subconverter's Homebrew dylibs into
+        // Contents/Frameworks and rewrites the engine to load them via the rpath
+        // `@loader_path/../Frameworks`. Because the engine is copied out to
+        // <root>/runtime/subconverter, that rpath resolves to <root>/Frameworks, so
+        // the dylibs must live there too. Debug builds instead link the engine
+        // against absolute Homebrew paths and ship no Frameworks at all.
+        //
+        // These two layouts are mutually incompatible. The previous behaviour
+        // decided what to refresh by file modification date, which let a stale
+        // release engine survive next to a missing Frameworks dir — dyld then
+        // failed to load libyaml-cpp and the engine exited before becoming ready.
+        // To make drift impossible we stamp the runtime with a signature of the
+        // current bundle's engine payload and rebuild the whole runtime from
+        // scratch whenever it changes (app upgrade, engine rebuild, or a
+        // Debug<->release switch).
+        let frameworksDestination = AppPaths.rootDirectory.appendingPathComponent("Frameworks", isDirectory: true)
+        let markerURL = runtimeRoot.appendingPathComponent(".payload-signature")
+        let signature = currentPayloadSignature()
 
-        let prefURL = runtimeRoot.appendingPathComponent("pref.toml")
-        try writePrefTemplate(to: prefURL)
+        if installedSignature(at: markerURL) != signature || !isRuntimeIntact(frameworksDestination: frameworksDestination) {
+            AppLogger.log("Runtime payload changed or incomplete; rebuilding runtime from bundle.")
+            try rebuildRuntime(runtimeRoot: runtimeRoot, frameworksDestination: frameworksDestination)
+            try signature.write(to: markerURL, atomically: true, encoding: .utf8)
+        }
 
         return RuntimeContext(
             rootDirectory: runtimeRoot,
             presetsDirectory: AppPaths.presetsDirectory,
             appRulesDirectory: runtimeRoot.appendingPathComponent("AppRules", isDirectory: true),
             binaryURL: runtimeRoot.appendingPathComponent("subconverter"),
-            prefURL: prefURL
+            prefURL: runtimeRoot.appendingPathComponent("pref.toml")
         )
     }
 
+    /// Identifies the engine payload shipped in the current app bundle. Includes the
+    /// engine binary's size and modification date so a rebuilt engine — even one with
+    /// an unchanged bundle version — forces a fresh install, and records whether this
+    /// bundle vendors its dylibs (release) or relies on Homebrew (Debug).
+    private func currentPayloadSignature() -> String {
+        let version = (Bundle.main.infoDictionary?["CFBundleVersion"] as? String) ?? "0"
+        var parts = ["v\(version)"]
+        if let engine = Bundle.main.resourceURL?.appendingPathComponent("subconverter"),
+           let attributes = try? FileManager.default.attributesOfItem(atPath: engine.path) {
+            let size = (attributes[.size] as? NSNumber)?.intValue ?? 0
+            let mtime = (attributes[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
+            parts.append("engine:\(size):\(Int(mtime))")
+        }
+        parts.append(bundleHasVendoredFrameworks() ? "vendored" : "homebrew")
+        return parts.joined(separator: "|")
+    }
+
+    private func installedSignature(at markerURL: URL) -> String? {
+        guard let value = try? String(contentsOf: markerURL, encoding: .utf8) else {
+            return nil
+        }
+        return value.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// A matching signature normally means the runtime is good, but this guards the
+    /// exact dyld failure directly: a vendored (release) engine is useless without its
+    /// `<root>/Frameworks` dylibs, and the engine binary must exist at all.
+    private func isRuntimeIntact(frameworksDestination: URL) -> Bool {
+        let manager = FileManager.default
+        let engine = AppPaths.runtimeDirectory.appendingPathComponent("subconverter")
+        guard manager.fileExists(atPath: engine.path) else {
+            return false
+        }
+        if bundleHasVendoredFrameworks(), !manager.fileExists(atPath: frameworksDestination.path) {
+            return false
+        }
+        return true
+    }
+
+    private func bundleHasVendoredFrameworks() -> Bool {
+        guard let source = Bundle.main.privateFrameworksURL,
+              FileManager.default.fileExists(atPath: source.path) else {
+            return false
+        }
+        let contents = (try? FileManager.default.contentsOfDirectory(atPath: source.path)) ?? []
+        return !contents.isEmpty
+    }
+
+    /// Wipes and recreates the runtime (and vendored Frameworks) so the engine and its
+    /// dylibs are always a faithful copy of the current bundle. Sibling state
+    /// (imports/, logs/, state.json) is left untouched.
+    private func rebuildRuntime(runtimeRoot: URL, frameworksDestination: URL) throws {
+        let manager = FileManager.default
+        if manager.fileExists(atPath: runtimeRoot.path) {
+            try manager.removeItem(at: runtimeRoot)
+        }
+        if manager.fileExists(atPath: frameworksDestination.path) {
+            try manager.removeItem(at: frameworksDestination)
+        }
+        try manager.createDirectory(at: runtimeRoot, withIntermediateDirectories: true)
+        try manager.createDirectory(at: AppPaths.presetsDirectory, withIntermediateDirectories: true)
+
+        try copyFrameworksIfPresent(to: frameworksDestination)
+        try copyBundleResource(named: "subconverter", to: runtimeRoot.appendingPathComponent("subconverter"), executable: true)
+        try copyBundleFolder(named: "base", to: runtimeRoot.appendingPathComponent("base"))
+        try copyBundleFolder(named: "rules", to: runtimeRoot.appendingPathComponent("rules"))
+        try copyBundleFolder(named: "snippets", to: runtimeRoot.appendingPathComponent("snippets"))
+        try copyBundleFolder(named: "AppRules", to: runtimeRoot.appendingPathComponent("AppRules"))
+        try writePrefTemplate(to: runtimeRoot.appendingPathComponent("pref.toml"))
+    }
+
     private func copyFrameworksIfPresent(to destination: URL) throws {
-        // Debug builds run against Homebrew dylibs on the dev machine and have
-        // no vendored Frameworks directory, so this is a no-op when absent.
+        // Debug builds run against Homebrew dylibs on the dev machine and ship no
+        // vendored Frameworks directory, so this is a no-op when absent.
         guard let source = Bundle.main.privateFrameworksURL,
               FileManager.default.fileExists(atPath: source.path) else {
             return
         }
 
-        try replaceItemIfNeeded(source: source, destination: destination, isDirectory: true)
+        try forceCopy(source: source, destination: destination)
     }
 
     private func copyBundleFolder(named name: String, to destination: URL) throws {
@@ -54,7 +134,7 @@ struct RuntimeInstaller {
             throw RuntimeInstallerError.missingBundleResource(name)
         }
 
-        try replaceItemIfNeeded(source: source, destination: destination, isDirectory: true)
+        try forceCopy(source: source, destination: destination)
     }
 
     private func copyBundleResource(named name: String, to destination: URL, executable: Bool) throws {
@@ -62,29 +142,21 @@ struct RuntimeInstaller {
             throw RuntimeInstallerError.missingBundleResource(name)
         }
 
-        try replaceItemIfNeeded(source: source, destination: destination, isDirectory: false)
+        try forceCopy(source: source, destination: destination)
         if executable {
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: destination.path)
         }
     }
 
-    private func replaceItemIfNeeded(source: URL, destination: URL, isDirectory: Bool) throws {
+    /// Copies `source` onto `destination`, replacing any existing item. Unlike the old
+    /// modification-date heuristic this never leaves a stale copy in place — callers
+    /// rebuild onto a freshly wiped runtime, so the result is always current.
+    private func forceCopy(source: URL, destination: URL) throws {
         let manager = FileManager.default
         if manager.fileExists(atPath: destination.path) {
-            let sourceDate = (try? source.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
-            let destinationDate = (try? destination.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
-            if destinationDate >= sourceDate {
-                return
-            }
-
             try manager.removeItem(at: destination)
         }
-
-        if isDirectory {
-            try manager.copyItem(at: source, to: destination)
-        } else {
-            try manager.copyItem(at: source, to: destination)
-        }
+        try manager.copyItem(at: source, to: destination)
     }
 
     private func writePrefTemplate(to destination: URL) throws {
