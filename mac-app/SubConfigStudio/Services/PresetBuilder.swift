@@ -9,6 +9,7 @@ struct PresetBuilder {
         "OKX",
         "Bybit",
         "Futu",
+        "Lark",
         "Apple",
         "YouTube",
         "Google",
@@ -22,7 +23,8 @@ struct PresetBuilder {
     // RULE-SET,cn-domain / GEOSITE,cn and forced to DIRECT, so they have to
     // be evaluated before the CN block.
     static let priorityServiceRuleFiles = [
-        "futu.list"
+        "futu.list",
+        "lark.list"
     ]
 
     static let builtinDirectRuleFiles = [

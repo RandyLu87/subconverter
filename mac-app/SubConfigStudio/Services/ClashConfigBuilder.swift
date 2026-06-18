@@ -228,6 +228,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.steam
         case "Futu":
             return ProxyGroupIconCatalog.futu
+        case "Lark":
+            return ProxyGroupIconCatalog.lark
         case "Other":
             return ProxyGroupIconCatalog.final
         default:
