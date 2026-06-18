@@ -47,18 +47,20 @@ struct RuntimeInstaller {
         )
     }
 
-    /// Identifies the engine payload shipped in the current app bundle. Includes the
-    /// engine binary's size and modification date so a rebuilt engine — even one with
-    /// an unchanged bundle version — forces a fresh install, and records whether this
-    /// bundle vendors its dylibs (release) or relies on Homebrew (Debug).
+    /// Identifies the app build that owns the bundled runtime payload. The main
+    /// executable's size and modification date change on every build/codesign, so
+    /// this captures changes to ANY bundled payload that gets copied into the runtime
+    /// (engine, base, rules, snippets, AppRules) — not just the engine — and forces a
+    /// fresh install whenever a new build is run or installed. Also records whether
+    /// this build vendors its dylibs (release) or relies on Homebrew (Debug).
     private func currentPayloadSignature() -> String {
         let version = (Bundle.main.infoDictionary?["CFBundleVersion"] as? String) ?? "0"
         var parts = ["v\(version)"]
-        if let engine = Bundle.main.resourceURL?.appendingPathComponent("subconverter"),
-           let attributes = try? FileManager.default.attributesOfItem(atPath: engine.path) {
+        if let executable = Bundle.main.executableURL,
+           let attributes = try? FileManager.default.attributesOfItem(atPath: executable.path) {
             let size = (attributes[.size] as? NSNumber)?.intValue ?? 0
             let mtime = (attributes[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
-            parts.append("engine:\(size):\(Int(mtime))")
+            parts.append("app:\(size):\(Int(mtime))")
         }
         parts.append(bundleHasVendoredFrameworks() ? "vendored" : "homebrew")
         return parts.joined(separator: "|")
