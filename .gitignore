@@ -22,3 +22,6 @@ src/subconverter/base/cache/
 # Editor / IDE
 .vscode/
 .idea/
+
+# macOS app build artifacts
+mac-app/build/
