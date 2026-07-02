@@ -23,6 +23,7 @@ enum CountryBucket: CaseIterable {
     case singapore
     case japan
     case taiwan
+    case korea
     case unitedKingdom
     case india
     case other
@@ -39,6 +40,8 @@ enum CountryBucket: CaseIterable {
             return "🇯🇵 Japan Auto"
         case .taiwan:
             return "🇹🇼 Taiwan Auto"
+        case .korea:
+            return "🇰🇷 Korea Auto"
         case .unitedKingdom:
             return "🇬🇧 United Kingdom Auto"
         case .india:
@@ -60,6 +63,8 @@ enum CountryBucket: CaseIterable {
             return "https://flagcdn.com/w80/jp.png"
         case .taiwan:
             return "https://flagcdn.com/w80/tw.png"
+        case .korea:
+            return "https://flagcdn.com/w80/kr.png"
         case .unitedKingdom:
             return "https://flagcdn.com/w80/gb.png"
         case .india:
@@ -80,7 +85,9 @@ enum CountryBucket: CaseIterable {
         case .japan:
             return ["🇯🇵", "japan", "日本", "tokyo", "osaka"]
         case .taiwan:
-            return ["🇹🇼", "taiwan", "台湾", "taipei"]
+            return ["🇹🇼", "taiwan", "台湾", "台灣", "taipei"]
+        case .korea:
+            return ["🇰🇷", "korea", "韩国", "韓國", "首尔", "首爾", "seoul"]
         case .unitedKingdom:
             return ["🇬🇧", "united\\s*kingdom", "(?:^|[^a-z])uk(?:[^a-z]|$)", "england", "london", "英国"]
         case .india:

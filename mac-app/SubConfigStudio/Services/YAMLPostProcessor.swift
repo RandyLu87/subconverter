@@ -13,6 +13,12 @@ struct YAMLPostProcessor {
             guard !shouldDropHighMultiplierNode(named: proxy.name) else {
                 continue
             }
+            guard !shouldDropGameNode(named: proxy.name) else {
+                continue
+            }
+            guard !shouldDropDisallowedCountry(named: proxy.name) else {
+                continue
+            }
             guard seenSignatures.insert(proxy.signature).inserted else {
                 continue
             }
@@ -60,6 +66,33 @@ struct YAMLPostProcessor {
 
         let dataOnlyPattern = #"^[\p{Emoji_Presentation}\p{Emoji}\p{So}\s"]*\d+(?:\.\d+)?\s*(?:[KMGTPE]?i?B|[KMGTPE])(?:\s*\|\s*\d+(?:\.\d+)?\s*(?:[KMGTPE]?i?B|[KMGTPE]))+[\p{Emoji_Presentation}\p{Emoji}\p{So}\s"]*$"#
         return trimmed.range(of: dataOnlyPattern, options: [.regularExpression, .caseInsensitive]) != nil
+    }
+
+    private func shouldDropDisallowedCountry(named name: String) -> Bool {
+        // Keep only mainstream regions. Anything the classifier can't place into
+        // a recognized country bucket (i.e. lands in `.other`) is dropped — this
+        // covers unused countries (Israel, Germany, Canada, single-node tails)
+        // as well as junk/ad nodes that carry no country flag (e.g. 官网地址 …).
+        // The keep-list is therefore defined in one place: the set of buckets the
+        // ProxyCountryClassifier recognizes. Add/remove a bucket there to change it.
+        return ProxyCountryClassifier.bucket(for: name) == .other
+    }
+
+    private func shouldDropGameNode(named name: String) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return false
+        }
+
+        // Drop dedicated gaming nodes. Covers every simplified/traditional
+        // combination of 游/遊 (you) + 戏/戲 (xi).
+        let keywordPatterns = [
+            "游戏",
+            "遊戲",
+            "游戲",
+            "遊戏"
+        ]
+        return keywordPatterns.contains { trimmed.contains($0) }
     }
 
     private func shouldDropHighMultiplierNode(named name: String) -> Bool {
