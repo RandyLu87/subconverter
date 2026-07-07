@@ -107,6 +107,33 @@ final class EngineController {
         AppLogger.log("Proxy list request succeeded with \(data.count) bytes.")
         return body
     }
+
+    /// 让引擎把一份 Clash 配置文件解析为 sing-box 节点列表(`{"outbounds":[...]}`)。
+    func fetchSingBoxNodes(fromConfigPath path: String) async throws -> String {
+        AppLogger.log("Requesting sing-box node list from \(path).")
+
+        var components = URLComponents(string: "http://127.0.0.1:25500/sub")
+        components?.queryItems = [
+            URLQueryItem(name: "target", value: "singbox"),
+            URLQueryItem(name: "list", value: "true"),
+            URLQueryItem(name: "url", value: path)
+        ]
+        guard let url = components?.url else {
+            throw EngineError.invalidRequest
+        }
+
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse else {
+            throw EngineError.invalidResponse
+        }
+        let body = String(decoding: data, as: UTF8.self)
+        guard http.statusCode == 200 else {
+            AppLogger.log("sing-box node request failed with status \(http.statusCode).")
+            throw EngineError.requestFailed(body.isEmpty ? "HTTP \(http.statusCode)" : body)
+        }
+        AppLogger.log("sing-box node request succeeded with \(data.count) bytes.")
+        return body
+    }
 }
 
 enum EngineError: LocalizedError {

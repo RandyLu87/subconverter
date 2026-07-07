@@ -1,0 +1,52 @@
+// 稳定性验证用的最简 sing-box 配置模板（sing-box 支持 // 注释）
+// 用法：把 <...> 占位换成你自己的节点信息，导入 app 后选中即可。
+// 只为"跑通 + 观测内存"，不追求分流完整性。
+{
+  "log": { "level": "info", "timestamp": true },
+
+  // Clash 兼容面板：连上后可用 metacubexd/yacd 连 127.0.0.1:9090 看连接/流量/切节点
+  "experimental": {
+    "clash_api": {
+      "external_controller": "127.0.0.1:9090",
+      "default_mode": "rule"
+    }
+  },
+
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "gvisor"          // gvisor 用户态栈，NE 里最稳；内存敏感场景也可试 "mixed"
+    }
+  ],
+
+  "outbounds": [
+    // 🇺🇸 US-Trojan(自建) — 从 subconfig-clash_26_07_01.yaml 提取转换
+    {
+      "type": "trojan",
+      "tag": "proxy",
+      "server": "69.17.3.85",
+      "server_port": 34567,
+      "password": "712471d4bb22c9a25d7d5f7a579c57ed",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",   // clash sni
+        "insecure": true                        // clash skip-cert-verify: true
+      }
+    },
+    { "type": "direct", "tag": "direct" }
+  ],
+
+  "route": {
+    "auto_detect_interface": true,
+    "rules": [
+      { "action": "sniff" },
+      { "protocol": "dns", "action": "hijack-dns" },
+      { "ip_is_private": true, "outbound": "direct" }   // 私网直连
+    ],
+    "final": "proxy"     // 其余全走代理（最简，便于验证全局流量）
+  }
+}

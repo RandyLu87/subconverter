@@ -29,6 +29,8 @@
 		AA0000000000000000000120 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000220 /* AppLogger.swift */; };
 		AA0000000000000000000121 /* ProxyCountryClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* ProxyCountryClassifier.swift */; };
 		AA0000000000000000000122 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000321 /* Assets.xcassets */; };
+		AA0000000000000000000130 /* MiniYAML.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000230 /* MiniYAML.swift */; };
+		AA0000000000000000000131 /* ClashToSingBoxConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000231 /* ClashToSingBoxConverter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		AA0000000000000000000214 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AA0000000000000000000220 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		AA0000000000000000000221 /* ProxyCountryClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyCountryClassifier.swift; sourceTree = "<group>"; };
+		AA0000000000000000000230 /* MiniYAML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniYAML.swift; sourceTree = "<group>"; };
+		AA0000000000000000000231 /* ClashToSingBoxConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClashToSingBoxConverter.swift; sourceTree = "<group>"; };
 		AA0000000000000000000301 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0000000000000000000315 /* ../subconverter/subconverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = ../subconverter/subconverter; sourceTree = SOURCE_ROOT; };
 		AA0000000000000000000316 /* ../subconverter/base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../subconverter/base; sourceTree = SOURCE_ROOT; };
@@ -125,6 +129,8 @@
 				AA0000000000000000000206 /* EngineController.swift */,
 				AA0000000000000000000205 /* PresetBuilder.swift */,
 				AA0000000000000000000221 /* ProxyCountryClassifier.swift */,
+				AA0000000000000000000231 /* ClashToSingBoxConverter.swift */,
+				AA0000000000000000000230 /* MiniYAML.swift */,
 				AA0000000000000000000207 /* ProxyListParser.swift */,
 				AA0000000000000000000204 /* RuntimeInstaller.swift */,
 				AA0000000000000000000211 /* SourceImportService.swift */,
@@ -244,6 +250,8 @@
 				AA0000000000000000000109 /* ClashConfigBuilder.swift in Sources */,
 				AA0000000000000000000110 /* ConfigGenerationService.swift in Sources */,
 				AA0000000000000000000111 /* SourceImportService.swift in Sources */,
+				AA0000000000000000000130 /* MiniYAML.swift in Sources */,
+				AA0000000000000000000131 /* ClashToSingBoxConverter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,3 +25,8 @@ src/subconverter/base/cache/
 
 # macOS app build artifacts
 mac-app/build/
+
+# iOS/Nest 测试用配置与日志(含真实节点凭据,勿入库)
+docs/ios-app/subconfig-clash*.yaml
+docs/ios-app/nest-test-config*.json
+docs/ios-app/logs-*.txt

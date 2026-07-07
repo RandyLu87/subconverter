@@ -3,6 +3,11 @@ import Combine
 import Foundation
 import UniformTypeIdentifiers
 
+enum AppMode: Hashable {
+    case generate
+    case convert
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     static let shared = AppModel()
@@ -15,10 +20,19 @@ final class AppModel: ObservableObject {
     @Published var lastGeneratedProxyCount: Int?
     @Published var customDirectRulesText = ""
 
+    // Clash → sing-box 转换
+    @Published var appMode: AppMode = .generate
+    @Published var conversionInput = ""
+    @Published var conversionOutput = ""
+    @Published var conversionIconsJSON: String?
+    @Published var conversionMessages: [ConversionMessage] = []
+    @Published var isConverting = false
+
     private let store = AppStateStore()
     private let engine = EngineController()
     private lazy var generator = ConfigGenerationService(engine: engine)
     private lazy var importer = SourceImportService(engine: engine)
+    private lazy var converter = ClashToSingBoxConverter(engine: engine)
 
     private init() {
         let state = store.load()
@@ -141,6 +155,69 @@ final class AppModel: ObservableObject {
         do {
             try previewText.write(to: url, atomically: true, encoding: .utf8)
             statusMessage = "Exported to \(url.lastPathComponent)."
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    // MARK: - Clash → sing-box 转换
+
+    func importClashForConversion() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.allowedContentTypes = [.yaml, .text]
+        panel.message = "选择要转换为 sing-box 的 Clash / Mihomo YAML 配置。"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            conversionInput = try String(contentsOf: url, encoding: .utf8)
+            statusMessage = "已载入 \(url.lastPathComponent)。"
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    func convert() async {
+        guard !isConverting else { return }
+        guard !conversionInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            statusMessage = "请先导入或粘贴 Clash 配置。"
+            return
+        }
+        isConverting = true
+        statusMessage = "转换中..."
+        defer { isConverting = false }
+        do {
+            let output = try await converter.convert(clashYAML: conversionInput)
+            conversionOutput = output.configJSON
+            conversionIconsJSON = output.iconsJSON
+            conversionMessages = output.report.messages
+            statusMessage = output.report.hasError ? "转换完成(含警告/错误)。" : "转换完成。"
+            AppLogger.log("Clash→sing-box conversion done.")
+        } catch {
+            conversionMessages = [ConversionMessage(level: .error, text: error.localizedDescription)]
+            statusMessage = error.localizedDescription
+            AppLogger.log("Clash→sing-box conversion failed: \(error.localizedDescription)")
+        }
+    }
+
+    func exportConversion() {
+        guard !conversionOutput.isEmpty else {
+            statusMessage = "请先转换再导出。"
+            return
+        }
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "config.json"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try conversionOutput.write(to: url, atomically: true, encoding: .utf8)
+            if let icons = conversionIconsJSON {
+                let iconsURL = url.deletingLastPathComponent().appendingPathComponent("icons.json")
+                try icons.write(to: iconsURL, atomically: true, encoding: .utf8)
+                statusMessage = "已导出 \(url.lastPathComponent) + icons.json。"
+            } else {
+                statusMessage = "已导出 \(url.lastPathComponent)。"
+            }
         } catch {
             statusMessage = error.localizedDescription
         }
