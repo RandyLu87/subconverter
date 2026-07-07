@@ -116,23 +116,43 @@ final class ClashToSingBoxConverter {
             ruleSetArray.append(rs)
         }
 
-        // 5) 组装(面向 Nest 的固定模板)
+        // 5) 出站模式:合成 GLOBAL 选择器(全局模式的出口,成员=所有分组+所有节点)。
+        //    若源配置已占用 GLOBAL 名,复用它并提示,不重复合成。
+        let sanitizedFinal = allTags.contains(finalOutbound) ? finalOutbound : detour
+        let globalTag = "GLOBAL"
+        var globalGroup: [String: Any]?
+        if groupTags.contains(globalTag) || nodeTags.contains(globalTag) {
+            report.warn("源配置已存在名为 GLOBAL 的组/节点,全局模式将直接复用它。")
+        } else {
+            // 成员只平铺节点(不含分组):全局模式下用户直接从节点列表选出口,符合 Clash 客户端习惯
+            let members = validNodes.compactMap { $0["tag"] as? String }
+            globalGroup = [
+                "type": "selector", "tag": globalTag,
+                "outbounds": members,
+                "default": members.contains(sanitizedFinal) ? sanitizedFinal : members[0]
+            ]
+            report.info("已启用出站模式(Rule / Global / Direct),合成 GLOBAL 组(平铺节点 \(members.count) 个)。")
+        }
+
+        // 6) 组装(面向 Nest 的固定模板)
         let config = assemble(nodes: validNodes,
                               groups: groupObjects,
                               routeRules: routeRules,
                               ruleSets: ruleSetArray,
-                              finalOutbound: allTags.contains(finalOutbound) ? finalOutbound : detour)
+                              finalOutbound: sanitizedFinal,
+                              globalGroup: globalGroup,
+                              globalTag: globalTag)
 
-        // 6) 校验
+        // 7) 校验
         let errs = validate(config)
         if !errs.isEmpty { throw ClashConversionError.validationFailed(errs) }
 
-        // 7) 序列化
+        // 8) 序列化
         let data = try JSONSerialization.data(withJSONObject: config,
                                               options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys])
         let configJSON = String(decoding: data, as: UTF8.self)
 
-        // 8) 图标旁路
+        // 9) 图标旁路
         let icons = extractIcons(clashGroups)
         var iconsJSON: String?
         if !icons.isEmpty {
@@ -436,16 +456,23 @@ final class ClashToSingBoxConverter {
                           groups: [[String: Any]],
                           routeRules: [[String: Any]],
                           ruleSets: [[String: Any]],
-                          finalOutbound: String) -> [String: Any] {
+                          finalOutbound: String,
+                          globalGroup: [String: Any]?,
+                          globalTag: String) -> [String: Any] {
         var outbounds: [[String: Any]] = []
+        // GLOBAL 置顶:全局模式下用户来组页第一眼就能选出口
+        if let globalGroup { outbounds.append(globalGroup) }
         outbounds.append(contentsOf: groups)
         outbounds.append(contentsOf: nodes)
         outbounds.append(["type": "direct", "tag": "direct"])
 
+        // clash_mode 规则刻意放在 ip_is_private 之后:任何模式下局域网都保持直连
         var routeRuleList: [[String: Any]] = [
             ["action": "sniff"],
             ["protocol": "dns", "action": "hijack-dns"],
-            ["ip_is_private": true, "outbound": "direct"]
+            ["ip_is_private": true, "outbound": "direct"],
+            ["clash_mode": "Direct", "outbound": "direct"],
+            ["clash_mode": "Global", "outbound": globalTag]
         ]
         routeRuleList.append(contentsOf: routeRules)
 
@@ -463,6 +490,11 @@ final class ClashToSingBoxConverter {
                 ["tag": "dns-direct", "type": "udp", "server": "223.5.5.5"]
             ],
             "rules": [
+                // 直连模式整体切真实 IP,绕开 fakeip 回源路径;全局模式 CN 域名也走 fakeip→代理。
+                // Direct 规则必须带 rewrite_ttl=1:明文国内 DNS 对被墙域名返回污染 IP,若按原始
+                // TTL 缓存,切回规则模式后 App 仍连污染 IP,间歇性失败直到过期。
+                ["clash_mode": "Direct", "server": "dns-direct", "rewrite_ttl": 1],
+                ["clash_mode": "Global", "query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1],
                 ["rule_set": ["geosite-geolocation-cn"], "server": "dns-direct"],
                 ["query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1]
             ],
@@ -475,12 +507,21 @@ final class ClashToSingBoxConverter {
             "auto_route": true, "strict_route": true, "stack": "system"
         ]]
 
+        // clash_api:模式列表 = default_mode + 规则里出现的 clash_mode 值(Rule/Global/Direct);
+        // external_controller 留空 → 只建模式管理,不开 HTTP 监听。
+        // cache_file:持久化模式 + selector 选点 + fakeip 映射(跨 VPN/App 重启保持)。
+        let experimental: [String: Any] = [
+            "clash_api": ["default_mode": "Rule"],
+            "cache_file": ["enabled": true, "store_fakeip": true]
+        ]
+
         return [
             "log": ["level": "info", "timestamp": true],
             "dns": dns,
             "inbounds": inbounds,
             "outbounds": outbounds,
-            "route": route
+            "route": route,
+            "experimental": experimental
         ]
     }
 
