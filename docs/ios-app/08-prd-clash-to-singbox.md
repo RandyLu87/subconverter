@@ -3,6 +3,7 @@
 > 状态:草案 · 只定义范围/映射/架构决策,不含实现
 > 日期:2026-07-07
 > 载体:现有 macOS app(`mac-app/SubConfigStudio`)
+> 本文档留在 subconverter 仓库(转换器代码所在地);消费方 Nest app 的文档见 `../../../Nest/docs/ios-app/`,详见 [docs/ios-app/README.md](README.md)。
 > 参考输入:`docs/ios-app/subconfig-clash_26_07_01.yaml`(150 节点 / 24 策略组 / 211 规则)
 
 ---

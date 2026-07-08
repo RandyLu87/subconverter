@@ -3,6 +3,7 @@
 > 基于 `08-prd-clash-to-singbox.md`(决策:A 忠实 / P3 混合 / 面向 Nest / 产 icons.json)
 > 日期:2026-07-07 · 载体:`mac-app/SubConfigStudio`
 > 只做方案,不实现。
+> 本文档留在 subconverter 仓库(转换器代码所在地);消费方 Nest app 的文档见 `../../../Nest/docs/ios-app/`,详见 [docs/ios-app/README.md](README.md)。
 
 ---
 
