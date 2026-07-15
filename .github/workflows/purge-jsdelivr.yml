@@ -1,0 +1,32 @@
+name: Purge jsDelivr cache for Nest assets
+
+# 每次 main 上的 assets/ 变更后,主动 purge jsDelivr 边缘缓存,
+# 让 Nest 的策略组图标映射(assets/GroupIcons.json)几分钟内全球生效,
+# 而无需等分支 URL 的 ~12h 缓存自然过期。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/**'
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Purge changed asset files on jsDelivr
+        run: |
+          set -euo pipefail
+          # 找出本次 push 改动的 assets/ 文件,逐个 purge
+          files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- 'assets/**' || true)
+          if [ -z "$files" ]; then
+            # 兜底:至少 purge 图标映射本身
+            files="assets/GroupIcons.json"
+          fi
+          for f in $files; do
+            url="https://purge.jsdelivr.net/gh/${{ github.repository }}@main/$f"
+            echo "Purging $url"
+            curl -sS -f "$url" || echo "purge failed for $f (non-fatal)"
+          done
