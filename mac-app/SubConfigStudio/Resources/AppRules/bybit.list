@@ -1,2 +1,15 @@
+# Bybit(含备用 / 后端 API 域名;来源:社区抓包整理 blackmatrix7 ios_rule_script#1476)
+# 说明:仅收录 Bybit 自有域名;共享基础设施(amazon/amazonaws/appsflyer 等)与轮换 IP 不收,避免误吞无关流量。
 DOMAIN-SUFFIX,bybit.com,Bybit
+DOMAIN-SUFFIX,bybit.biz,Bybit
+DOMAIN-SUFFIX,bytick.com,Bybit
+DOMAIN-SUFFIX,bycsi.com,Bybit
+DOMAIN-SUFFIX,byapis.com,Bybit
+DOMAIN-SUFFIX,bycbe.com,Bybit
+DOMAIN-SUFFIX,bymj.io,Bybit
+DOMAIN-SUFFIX,byabcde.com,Bybit
+DOMAIN-SUFFIX,byapps.net,Bybit
+DOMAIN-SUFFIX,byd3c3.com,Bybit
+DOMAIN-SUFFIX,bybdc6.com,Bybit
+DOMAIN-SUFFIX,byhkbit.com,Bybit
 DOMAIN-KEYWORD,bybit,Bybit
