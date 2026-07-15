@@ -90,6 +90,26 @@ final class ClashToSingBoxConverter {
         let nodeTags = Set(validNodes.compactMap { $0["tag"] as? String })
         report.info("有效节点 \(validNodes.count) 个。")
 
+        // 平移机场私有 DNS:节点服务器域名常为 CDN 前置 / 私有解析,必须用机场自带 DoH 才能
+        // 解析到可连通 IP,明文 / 公共 DNS 会解析到错误地址导致节点连不上。sing-box 里出站服务器
+        // 域名的解析由各出站的 domain_resolver 决定(且会绕过 dns.rules),所以给服务器域名命中
+        // 机场策略的节点逐个注入 domain_resolver,并新增对应的 DoH 解析器。
+        var passthrough = PassthroughDNS()
+        passthrough.merge(configYAML: root)
+        let nodeResolvers = buildNodeDomainResolvers(policy: passthrough.nameserverPolicy)
+        if !nodeResolvers.servers.isEmpty {
+            var injected = 0
+            validNodes = validNodes.map { node in
+                guard let server = node["server"] as? String,
+                      let tag = nodeResolvers.tag(forServerDomain: server) else { return node }
+                var updated = node
+                updated["domain_resolver"] = ["server": tag]
+                injected += 1
+                return updated
+            }
+            report.info("平移机场私有 DNS:为 \(injected) 个节点注入 domain_resolver,新增 \(nodeResolvers.servers.count) 个 DoH 解析器。")
+        }
+
         // 3) 策略组
         let (groupObjects, groupTags) = buildGroups(clashGroups, nodeTags: nodeTags, dropped: droppedTags, report: &report)
         report.info("策略组 \(groupObjects.count) 个。")
@@ -108,7 +128,8 @@ final class ClashToSingBoxConverter {
                                          ruleSetRegistry: &ruleSetRegistry,
                                          report: &report)
 
-        // rule_set 的下载 detour 指向最终出站(通常是含节点的组)
+        // remote rule_set 下载出站:用 http_client(sing-box 1.14+ 新写法;旧的 download_detour 1.16 移除)。
+        // 指向最终出站(通常是含节点的组)。
         let detour = groupTags.contains(finalOutbound) ? finalOutbound : (groupTags.first ?? "direct")
         var ruleSetArray: [[String: Any]] = []
         for (_, var rs) in ruleSetRegistry.sorted(by: { ($0.value["tag"] as! String) < ($1.value["tag"] as! String) }) {
@@ -136,6 +157,7 @@ final class ClashToSingBoxConverter {
 
         // 6) 组装(面向 Nest 的固定模板)
         let config = assemble(nodes: validNodes,
+                              extraDNSServers: nodeResolvers.servers,
                               groups: groupObjects,
                               routeRules: routeRules,
                               ruleSets: ruleSetArray,
@@ -453,6 +475,7 @@ final class ClashToSingBoxConverter {
     // MARK: 组装(Nest 模板)
 
     private func assemble(nodes: [[String: Any]],
+                          extraDNSServers: [[String: Any]] = [],
                           groups: [[String: Any]],
                           routeRules: [[String: Any]],
                           ruleSets: [[String: Any]],
@@ -484,11 +507,15 @@ final class ClashToSingBoxConverter {
         ]
         if !ruleSets.isEmpty { route["rule_set"] = ruleSets }
 
+        var dnsServers: [[String: Any]] = [
+            ["tag": "fake", "type": "fakeip", "inet4_range": "198.18.0.0/15"],
+            ["tag": "dns-direct", "type": "udp", "server": "223.5.5.5"]
+        ]
+        // 机场私有 DoH 解析器:仅供命中机场域名的节点(经 outbound.domain_resolver)解析服务器地址
+        dnsServers.append(contentsOf: extraDNSServers)
+
         let dns: [String: Any] = [
-            "servers": [
-                ["tag": "fake", "type": "fakeip", "inet4_range": "198.18.0.0/15"],
-                ["tag": "dns-direct", "type": "udp", "server": "223.5.5.5"]
-            ],
+            "servers": dnsServers,
             "rules": [
                 // 直连模式整体切真实 IP,绕开 fakeip 回源路径;全局模式 CN 域名也走 fakeip→代理。
                 // Direct 规则必须带 rewrite_ttl=1:明文国内 DNS 对被墙域名返回污染 IP,若按原始
@@ -590,5 +617,77 @@ final class ClashToSingBoxConverter {
         // Clash interval 通常是秒数(整数);已是时长串则原样返回
         if raw.allSatisfy(\.isNumber) { return "\(raw)s" }
         return raw
+    }
+
+    // MARK: 机场私有 DNS 平移(节点服务器域名解析)
+
+    private struct NodeDNSResolvers {
+        var servers: [[String: Any]] = []
+        var suffixTags: [(suffix: String, tag: String)] = []
+
+        /// 服务器域名命中某个机场后缀 → 返回对应 DoH 解析器 tag。
+        func tag(forServerDomain server: String) -> String? {
+            let host = server.lowercased()
+            for st in suffixTags where host == st.suffix || host.hasSuffix("." + st.suffix) {
+                return st.tag
+            }
+            return nil
+        }
+    }
+
+    /// 从机场 nameserver-policy 里挑出“节点域名 → 加密 DoH”的映射,构造 sing-box DoH 解析器,
+    /// 并给出“域名后缀 → 解析器 tag”的对应表。相同上游只建一个解析器(按 server 列表去重)。
+    private func buildNodeDomainResolvers(policy: [PassthroughDNS.PolicyEntry]) -> NodeDNSResolvers {
+        var result = NodeDNSResolvers()
+        var signatureToTag: [String: String] = [:]
+        var index = 0
+        for entry in policy {
+            // 只取节点域名类 key,排除 geosite:/geoip:/rule-set: 等特殊选择器
+            guard !entry.key.contains(":") else { continue }
+            let suffix = Self.normalizedDomainSuffix(entry.key)
+            guard !suffix.isEmpty else { continue }
+            // 仅采用带 scheme 的加密上游(DoH 等);纯 IP / system 对绕过污染无意义
+            let encrypted = entry.servers.filter { $0.contains("://") }
+            guard let primary = encrypted.first else { continue }
+            let signature = encrypted.joined(separator: "|")
+            let tag: String
+            if let existing = signatureToTag[signature] {
+                tag = existing
+            } else {
+                guard let server = Self.makeDoHServer(urlString: primary, tag: "dns-node-\(index)") else { continue }
+                tag = server["tag"] as! String
+                signatureToTag[signature] = tag
+                result.servers.append(server)
+                index += 1
+            }
+            result.suffixTags.append((suffix, tag))
+        }
+        return result
+    }
+
+    private static func normalizedDomainSuffix(_ key: String) -> String {
+        var s = key.lowercased()
+        for prefix in ["*.", "+.", "."] where s.hasPrefix(prefix) {
+            s = String(s.dropFirst(prefix.count))
+            break
+        }
+        return s
+    }
+
+    /// 把一个 DoH URL 转成 sing-box 1.12 的 https DNS server。
+    /// - domain_resolver: 用明文直连解析器 bootstrap 自身域名。
+    /// 不设 detour:空 direct 出站本就是默认直连,sing-box 1.12 会拒绝“detour 到空 direct 出站”
+    /// (报 "detour to an empty direct outbound makes no sense"),省略即走直连,正是所需。
+    private static func makeDoHServer(urlString: String, tag: String) -> [String: Any]? {
+        guard let comps = URLComponents(string: urlString), let host = comps.host else { return nil }
+        var server: [String: Any] = [
+            "type": "https",
+            "tag": tag,
+            "server": host,
+            "domain_resolver": ["server": "dns-direct"]
+        ]
+        if let port = comps.port { server["server_port"] = port }
+        if !comps.path.isEmpty && comps.path != "/" { server["path"] = comps.path }
+        return server
     }
 }
