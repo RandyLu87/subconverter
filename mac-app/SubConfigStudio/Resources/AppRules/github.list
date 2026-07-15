@@ -1,0 +1,13 @@
+# GitHub / GitHub Copilot
+GEOSITE,github,GitHub
+DOMAIN-SUFFIX,github.com,GitHub
+DOMAIN-SUFFIX,github.io,GitHub
+DOMAIN-SUFFIX,githubusercontent.com,GitHub
+DOMAIN-SUFFIX,githubassets.com,GitHub
+DOMAIN-SUFFIX,githubapp.com,GitHub
+DOMAIN-SUFFIX,github.dev,GitHub
+DOMAIN-SUFFIX,ghcr.io,GitHub
+DOMAIN-SUFFIX,githubcopilot.com,GitHub
+DOMAIN-SUFFIX,copilot-proxy.githubusercontent.com,GitHub
+DOMAIN-KEYWORD,githubcopilot,GitHub
+DOMAIN-KEYWORD,github,GitHub

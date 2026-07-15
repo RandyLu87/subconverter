@@ -14,6 +14,7 @@ enum ProxyGroupIconCatalog {
     static let steam = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Steam.png"
     static let futu = "https://raw.githubusercontent.com/lxfcx/QuanX-icon-rule/main/icon/futunn.png"
     static let lark = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/lark.png"
+    static let github = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/GitHub.png"
     static let final = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png"
 }
 
