@@ -10,7 +10,7 @@ struct ClashConfigBuilder {
     private static let selfBuiltKeyword = "自建"
     private static let selfBuiltGroupName = "自建"
 
-    func build(proxies: [ProxyEntry], ruleLines: [String]) -> String {
+    func build(proxies: [ProxyEntry], ruleLines: [String], passthroughDNS: PassthroughDNS = .empty) -> String {
         let names = proxies.map(\.name)
         let countryBuckets = ProxyCountryClassifier.bucketed(names: names)
         let availableCountryGroups = CountryBucket.allCases.filter { !countryBuckets[$0, default: []].isEmpty }
@@ -29,7 +29,8 @@ struct ClashConfigBuilder {
             "mode: Rule",
             "log-level: info"
         ]
-        lines.append(contentsOf: renderDNS())
+        lines.append(contentsOf: renderHosts(passthroughDNS.hosts))
+        lines.append(contentsOf: renderDNS(passthrough: passthroughDNS))
         lines.append(contentsOf: renderSniffer())
         lines.append(contentsOf: [
             "proxies:"
@@ -77,8 +78,21 @@ struct ClashConfigBuilder {
         ]
     }
 
-    private func renderDNS() -> [String] {
-        [
+    /// 顶层 hosts,透传自机场订阅。为使其生效,dns 块里会一并写 `use-hosts: true`。
+    private func renderHosts(_ hosts: [PassthroughDNS.HostEntry]) -> [String] {
+        guard !hosts.isEmpty else { return [] }
+        var lines = ["hosts:"]
+        for entry in hosts {
+            let rendered = entry.values.count == 1
+                ? Self.yamlQuoted(entry.values[0])
+                : Self.renderFlowList(entry.values)
+            lines.append("  \(Self.yamlQuoted(entry.host)): \(rendered)")
+        }
+        return lines
+    }
+
+    private func renderDNS(passthrough: PassthroughDNS) -> [String] {
+        var lines: [String] = [
             "dns:",
             "  enable: true",
             "  listen: 0.0.0.0:1053",
@@ -93,12 +107,51 @@ struct ClashConfigBuilder {
             "    - 223.5.5.5",
             "    - 119.29.29.29",
             "  nameserver:",
+            "    - https://223.5.5.5/dns-query",
+            "    - https://223.6.6.6/dns-query",
             "    - https://dns.alidns.com/dns-query",
-            "    - https://doh.pub/dns-query",
-            "  proxy-server-nameserver:",
-            "    - https://dns.alidns.com/dns-query",
-            ""
+            "    - https://doh.pub/dns-query"
         ]
+
+        if !passthrough.hosts.isEmpty {
+            lines.append("  use-hosts: true")
+        }
+
+        // 透传机场原始 nameserver-policy。节点服务器域名常为 CDN 前置 / 私有解析,
+        // 只有走机场自带的解析服务器才能拿到可连通的 IP,公共 DNS 会解析出错误地址。
+        if !passthrough.nameserverPolicy.isEmpty {
+            lines.append("  nameserver-policy:")
+            for entry in passthrough.nameserverPolicy {
+                lines.append("    \(Self.yamlQuoted(entry.key)): \(Self.renderFlowList(entry.servers))")
+            }
+        }
+
+        // proxy-server-nameserver 一旦设置就会“绕过”nameserver-policy 直接解析节点域名
+        // (见 mihomo 文档:留空才会回落到 nameserver-policy / nameserver / fallback)。
+        //   - 机场自带 proxy-server-nameserver → 原样透传;
+        //   - 否则若已有可依赖的 nameserver-policy → 省略本项,让节点域名回落到 policy;
+        //   - 都没有 → 保留默认公共 DoH(维持旧行为)。
+        if !passthrough.proxyServerNameserver.isEmpty {
+            lines.append("  proxy-server-nameserver:")
+            for server in passthrough.proxyServerNameserver {
+                lines.append("    - \(server)")
+            }
+        } else if passthrough.nameserverPolicy.isEmpty {
+            lines.append("  proxy-server-nameserver:")
+            lines.append("    - https://dns.alidns.com/dns-query")
+        }
+
+        lines.append("")
+        return lines
+    }
+
+    /// 单引号包裹并转义,安全用于含 `:` / `,` / `*` 的 key(如 `*.example.com`、`geosite:cn`)。
+    static func yamlQuoted(_ value: String) -> String {
+        "'" + value.replacingOccurrences(of: "'", with: "''") + "'"
+    }
+
+    static func renderFlowList(_ items: [String]) -> String {
+        "[" + items.map { yamlQuoted($0) }.joined(separator: ", ") + "]"
     }
 
     private func renderSniffer() -> [String] {
@@ -230,6 +283,12 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.futu
         case "Lark":
             return ProxyGroupIconCatalog.lark
+        case "GitHub":
+            return ProxyGroupIconCatalog.github
+        case "Telegram":
+            return ProxyGroupIconCatalog.telegram
+        case "X":
+            return ProxyGroupIconCatalog.x
         case "Other":
             return ProxyGroupIconCatalog.final
         default:
@@ -257,5 +316,76 @@ struct ClashConfigBuilder {
 
     private func quoted(_ value: String) -> String {
         "\"\(value.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\""))\""
+    }
+}
+
+/// 从机场订阅原始 Clash 配置里提取、可安全透传的 DNS 片段。
+///
+/// App 自己生成 fake-ip 基础 DNS,但节点服务器域名(常为 CDN 前置 / 机场私有解析)
+/// 只有走机场自带的解析服务器才能拿到可连通的 IP。这些信息只存在于订阅原文的
+/// `dns` / `hosts` 中,而 subconverter 引擎不会保留它——所以由 App 直接读取本地
+/// 订阅文件补齐。合并按 key 去重,首个来源优先。
+struct PassthroughDNS {
+    typealias PolicyEntry = (key: String, servers: [String])
+    typealias HostEntry = (host: String, values: [String])
+
+    private(set) var nameserverPolicy: [PolicyEntry] = []
+    private(set) var proxyServerNameserver: [String] = []
+    private(set) var hosts: [HostEntry] = []
+
+    static let empty = PassthroughDNS()
+
+    var isEmpty: Bool {
+        nameserverPolicy.isEmpty && proxyServerNameserver.isEmpty && hosts.isEmpty
+    }
+
+    private var policyKeys = Set<String>()
+    private var proxyServerSet = Set<String>()
+    private var hostKeys = Set<String>()
+
+    mutating func merge(configYAML root: YAMLValue) {
+        if let dns = root["dns"] {
+            if let entries = dns["nameserver-policy"]?.mappingEntries {
+                for entry in entries {
+                    guard !policyKeys.contains(entry.key),
+                          let servers = entry.value.stringArray, !servers.isEmpty else { continue }
+                    policyKeys.insert(entry.key)
+                    nameserverPolicy.append((entry.key, servers))
+                }
+            }
+            if let servers = dns["proxy-server-nameserver"]?.stringArray {
+                for server in servers where !proxyServerSet.contains(server) {
+                    proxyServerSet.insert(server)
+                    proxyServerNameserver.append(server)
+                }
+            }
+        }
+        if let hostEntries = root["hosts"]?.mappingEntries {
+            for entry in hostEntries {
+                guard !hostKeys.contains(entry.key),
+                      let values = entry.value.stringArray, !values.isEmpty else { continue }
+                hostKeys.insert(entry.key)
+                hosts.append((entry.key, values))
+            }
+        }
+    }
+
+    /// 读取每个来源的本地 YAML 文件,提取并合并可透传的 DNS 配置。
+    /// 非 YAML(如 base64 节点列表)或读取失败的来源会被安全跳过。
+    static func collect(fromFilePaths paths: [String]) -> PassthroughDNS {
+        var result = PassthroughDNS()
+        for path in paths {
+            guard let text = try? String(contentsOfFile: path, encoding: .utf8) else {
+                AppLogger.log("DNS 透传:无法读取来源文件 \(path)")
+                continue
+            }
+            guard let root = try? MiniYAML.parse(text) else {
+                AppLogger.log("DNS 透传:来源不是可解析 YAML,跳过 \(path)")
+                continue
+            }
+            result.merge(configYAML: root)
+        }
+        AppLogger.log("DNS 透传:policy=\(result.nameserverPolicy.count) proxy-server-ns=\(result.proxyServerNameserver.count) hosts=\(result.hosts.count)")
+        return result
     }
 }
