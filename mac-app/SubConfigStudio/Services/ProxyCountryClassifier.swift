@@ -2,22 +2,26 @@ import Foundation
 
 enum ProxyGroupIconCatalog {
     // Extracted from the sample Clash YAML provided by the user.
-    static let proxy = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Proxy.png"
-    static let ai = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Color/ChatGPT.png"
-    static let claudeCode = "https://raw.githubusercontent.com/lobehub/lobe-icons/8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/claudecode-color.png"
-    static let gemini = "https://raw.githubusercontent.com/lobehub/lobe-icons/8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/gemini-color.png"
-    static let google = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Google.png"
+    // Served over the jsDelivr GitHub CDN rather than raw.githubusercontent.com:
+    // raw is often blocked/throttled on CN networks and from shared airport exit IPs.
+    static let proxy = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Proxy.png"
+    static let ai = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/ChatGPT.png"
+    static let claudeCode = "https://cdn.jsdelivr.net/gh/lobehub/lobe-icons@8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/claudecode-color.png"
+    static let gemini = "https://cdn.jsdelivr.net/gh/lobehub/lobe-icons@8466f33c37a37f1c4df47938627ef2f52f192b36/packages/static-png/light/gemini-color.png"
+    static let google = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Google.png"
     static let crypto = "https://www.naiixi.com/Crypto.png"
-    static let apple = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Apple.png"
-    static let youtube = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/YouTube.png"
-    static let netflix = "https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Netflix.png"
-    static let steam = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Steam.png"
-    static let futu = "https://raw.githubusercontent.com/lxfcx/QuanX-icon-rule/main/icon/futunn.png"
-    static let lark = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/lark.png"
-    static let github = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/GitHub.png"
-    static let telegram = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Telegram.png"
-    static let x = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Twitter.png"
-    static let final = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png"
+    // apple/youtube/netflix used to point at HotKids `Images/Icons/`, which no longer
+    // exists upstream (404 on raw as well) — repointed at paths that actually resolve.
+    static let apple = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Apple.png"
+    static let youtube = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/YouTube.png"
+    static let netflix = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/Netflix.png"
+    static let steam = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Steam.png"
+    static let futu = "https://cdn.jsdelivr.net/gh/lxfcx/QuanX-icon-rule@main/icon/futunn.png"
+    static let lark = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/png/lark.png"
+    static let github = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/GitHub.png"
+    static let telegram = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Telegram.png"
+    static let x = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Twitter.png"
+    static let final = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Final.png"
 }
 
 enum CountryBucket: CaseIterable {
