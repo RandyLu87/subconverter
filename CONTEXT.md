@@ -32,6 +32,10 @@ _Avoid_: Rule group, 分流组
 **Default group**:
 兜底 Policy group，不引用其他 Policy group，供其余各组选中以共享同一出口。
 
+**Fake-IP exemption**（fake-ip 豁免）:
+不参与 fake-ip、走真实解析的域名集合。判定标准是「这个域名的客户端会不会自己拿 IP 做事」——打洞、自行测速选节点、探测网络可达性这三类拿到假 IP 就会失效。Clash 里是 `dns.fake-ip-filter` 一个字段；sing-box 无对应字段，只能表达为排在 fakeip 规则之前的一组 DNS 规则。
+_Avoid_: fake-ip 白名单, 真实解析列表
+
 **Passthrough DNS**（DNS 透传）:
 从 Source 的订阅原文里提取、原样搬进产物的 DNS 片段（`nameserver-policy`、`proxy-server-nameserver`、顶层 `hosts`）。存在的理由是 Node 的服务器域名往往只有机场自己的解析服务器才解得出可连通的 IP，而引擎的节点列表模式会丢弃这部分信息。
 _Avoid_: DNS 继承, DNS 合并

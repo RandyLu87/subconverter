@@ -156,8 +156,20 @@ final class ClashToSingBoxConverter {
         }
 
         // 6) 组装(面向 Nest 的固定模板)
+        // fake-ip 豁免直接读被转换的这份配置,不复用生成器常量 —— 喂任意 Clash 配置
+        // (含机场原配置)都成立,转换的就是眼前这份文件。
+        let fakeIPFilter = root["dns"]?["fake-ip-filter"]?.stringArray ?? []
+        if !fakeIPFilter.isEmpty {
+            report.info("平移 fake-ip 豁免:\(fakeIPFilter.count) 条 fake-ip-filter。")
+        }
+        if !passthrough.hosts.isEmpty {
+            report.info("平移顶层 hosts:\(passthrough.hosts.count) 条。")
+        }
         let config = assemble(nodes: validNodes,
                               extraDNSServers: nodeResolvers.servers,
+                              fakeIPFilter: fakeIPFilter,
+                              hosts: passthrough.hosts,
+                              cnRuleSetAvailable: ruleSetRegistry["geosite-geolocation-cn"] != nil,
                               groups: groupObjects,
                               routeRules: routeRules,
                               ruleSets: ruleSetArray,
@@ -472,10 +484,112 @@ final class ClashToSingBoxConverter {
         }
     }
 
+    // MARK: fake-ip 豁免(Clash dns.fake-ip-filter → sing-box DNS 规则)
+
+    /// sing-box DNS 规则里的一组域名匹配字段。
+    private struct DomainMatchers {
+        var domain: [String] = []
+        var domainSuffix: [String] = []
+        var domainRegex: [String] = []
+
+        var isEmpty: Bool { domain.isEmpty && domainSuffix.isEmpty && domainRegex.isEmpty }
+
+        func merged(into rule: [String: Any]) -> [String: Any] {
+            var out = rule
+            if !domain.isEmpty { out["domain"] = domain }
+            if !domainSuffix.isEmpty { out["domain_suffix"] = domainSuffix }
+            if !domainRegex.isEmpty { out["domain_regex"] = domainRegex }
+            return out
+        }
+    }
+
+    /// RFC 6761/6762 保留后缀 + 常见路由器/本地服务域名。只有系统解析器(局域网 DNS / mDNS)
+    /// 解得出来,交给任何公共 DNS 都是 NXDOMAIN,所以单独指向 type:local。
+    /// Clash 侧不需要这一步,是靠机场透传的 nameserver-policy 里 `geosite:...,private` 末尾
+    /// 那个 `system` 兜住的;sing-box 没有等价机制。
+    private static let localOnlySuffixes: Set<String> = [
+        "lan", "localdomain", "example", "invalid", "localhost", "test", "local", "home.arpa"
+    ]
+    private static let localOnlyPatterns: Set<String> = [
+        "mijia cloud",
+        "heartbeat.belkin.com",
+        "*.linksys.com",
+        "*.linksyssmartwifi.com",
+        "*.router.asus.com",
+        "local.adguard.org",
+        "localhost.ptlogin2.qq.com",
+        "localhost.sec.qq.com"
+    ]
+
+    private static func isLocalOnly(_ rawPattern: String) -> Bool {
+        let pattern = rawPattern.lowercased()
+        if localOnlyPatterns.contains(pattern) { return true }
+        var body = pattern
+        if body.hasPrefix("*.") || body.hasPrefix("+.") { body = String(body.dropFirst(2)) }
+        if localOnlySuffixes.contains(body) { return true }
+        return localOnlySuffixes.contains { body.hasSuffix("." + $0) }
+    }
+
+    /// 把 Clash 的 fake-ip-filter 模式拆成「只能靠系统解析器的」和「其余」两组匹配器。
+    private static func splitFakeIPFilter(_ patterns: [String]) -> (local: DomainMatchers, remote: DomainMatchers) {
+        (translateFakeIPFilter(patterns.filter(isLocalOnly)),
+         translateFakeIPFilter(patterns.filter { !isLocalOnly($0) }))
+    }
+
+    /// Clash fake-ip-filter 模式 → sing-box 匹配器。
+    ///   `music.163.com` → domain
+    ///   `+.qq.com`      → domain(含 apex) + domain_suffix
+    ///   `*.lan`         → domain_suffix。刻意放宽:Clash 的 `*` 只匹配一级,放宽后多命中的
+    ///                     是更深层子域,那些本来也该走真实解析,风险约等于零。
+    ///   `time.*.com`    → domain_regex。中间通配必须精确表达,退化成 domain_keyword
+    ///                     会把关键词 `time` 的一大片域名全部误伤。
+    private static func translateFakeIPFilter(_ patterns: [String]) -> DomainMatchers {
+        var matchers = DomainMatchers()
+        for raw in patterns {
+            // sing-box 匹配前会把查询域名统一小写,大写的匹配项永远命中不了
+            // (列表里确实有带大写的条目,如 "Mijia Cloud")。DNS 名大小写不敏感,直接降格。
+            let pattern = raw.lowercased()
+            let plus = pattern.hasPrefix("+.")
+            let rest = plus ? String(pattern.dropFirst(2)) : pattern
+            if rest.contains("*") {
+                let leadingStarOnly = rest.hasPrefix("*.") && !rest.dropFirst(2).contains("*")
+                if leadingStarOnly && !plus {
+                    matchers.domainSuffix.append("." + rest.dropFirst(2))
+                } else {
+                    let body = regexEscaped(rest)
+                    matchers.domainRegex.append(plus ? "^(.+\\.)?\(body)$" : "^\(body)$")
+                }
+            } else if plus {
+                matchers.domain.append(rest)
+                matchers.domainSuffix.append("." + rest)
+            } else {
+                matchers.domain.append(rest)
+            }
+        }
+        return matchers
+    }
+
+    /// `*` → 恰好一级标签,其余正则元字符转义。
+    private static func regexEscaped(_ s: String) -> String {
+        var out = ""
+        for ch in s {
+            switch ch {
+            case "*": out += "[^.]+"
+            case ".": out += "\\."
+            case "\\", "^", "$", "+", "?", "(", ")", "[", "]", "{", "}", "|": out += "\\" + String(ch)
+            default: out.append(ch)
+            }
+        }
+        return out
+    }
+
     // MARK: 组装(Nest 模板)
 
     private func assemble(nodes: [[String: Any]],
                           extraDNSServers: [[String: Any]] = [],
+                          fakeIPFilter: [String] = [],
+                          hosts: [PassthroughDNS.HostEntry] = [],
+                          cnRuleSetAvailable: Bool,
                           groups: [[String: Any]],
                           routeRules: [[String: Any]],
                           ruleSets: [[String: Any]],
@@ -514,17 +628,61 @@ final class ClashToSingBoxConverter {
         // 机场私有 DoH 解析器:仅供命中机场域名的节点(经 outbound.domain_resolver)解析服务器地址
         dnsServers.append(contentsOf: extraDNSServers)
 
+        var dnsRules: [[String: Any]] = []
+
+        // 顶层 hosts 平移:机场把订阅/面板域名钉死 IP,通常是为绕开污染或封锁。
+        // 必须排在 fakeip 规则之前,否则这些域名先拿到假 IP,钉死的映射永远用不上。
+        if !hosts.isEmpty {
+            var predefined: [String: Any] = [:]
+            for entry in hosts {
+                predefined[entry.host] = entry.values.count == 1 ? entry.values[0] : entry.values
+            }
+            dnsServers.append(["tag": "dns-hosts", "type": "hosts", "predefined": predefined])
+            dnsRules.append(["domain": hosts.map(\.host), "server": "dns-hosts"])
+        }
+
+        // fake-ip 豁免。sing-box 没有 fake-ip-filter 字段,只能表达成排在 fakeip 规则
+        // 之前、指向真实解析器的一组 DNS 规则。分流去向按 Clash 侧的真实路径对齐:
+        //   局域网条目 → 系统解析器(公共 DNS 一律 NXDOMAIN);
+        //   命中 geosite-cn 的国内条目 → 明文 UDP,与 Clash 的 nameserver-policy 一致,最快;
+        //   其余(境外 STUN / 视频 CDN 等)→ DoH。这些走明文会被 GFW 注入投毒,
+        //   拿到污染 IP 与拿到假 IP 一样不可用,所以必须加密。
+        let exempt = Self.splitFakeIPFilter(fakeIPFilter)
+        if !exempt.local.isEmpty {
+            dnsServers.append(["tag": "dns-local", "type": "local"])
+            dnsRules.append(exempt.local.merged(into: ["server": "dns-local"]))
+        }
+
+        // 直连模式整体切真实 IP,绕开 fakeip 回源路径;全局模式 CN 域名也走 fakeip→代理。
+        // Direct 规则必须带 rewrite_ttl=1:明文国内 DNS 对被墙域名返回污染 IP,若按原始
+        // TTL 缓存,切回规则模式后 App 仍连污染 IP,间歇性失败直到过期。
+        dnsRules.append(["clash_mode": "Direct", "server": "dns-direct", "rewrite_ttl": 1])
+
+        // 两条豁免规则都排在 clash_mode Global 之前:Clash 的 fake-ip-filter 是 DNS 层的,
+        // 与出站模式无关,全局模式下同样生效。
+        if !exempt.remote.isEmpty {
+            dnsServers.append(["tag": "dns-doh", "type": "https", "server": "223.5.5.5"])
+            if cnRuleSetAvailable {
+                dnsRules.append([
+                    "type": "logical",
+                    "mode": "and",
+                    "rules": [exempt.remote.merged(into: [:]), ["rule_set": ["geosite-geolocation-cn"]]],
+                    "server": "dns-direct"
+                ])
+            }
+            dnsRules.append(exempt.remote.merged(into: ["server": "dns-doh"]))
+        }
+
+        dnsRules.append(["clash_mode": "Global", "query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1])
+        // rule_set 只在源配置引用过 cn-domain 时才会注册,未注册就不能引用,否则产出坏配置。
+        if cnRuleSetAvailable {
+            dnsRules.append(["rule_set": ["geosite-geolocation-cn"], "server": "dns-direct"])
+        }
+        dnsRules.append(["query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1])
+
         let dns: [String: Any] = [
             "servers": dnsServers,
-            "rules": [
-                // 直连模式整体切真实 IP,绕开 fakeip 回源路径;全局模式 CN 域名也走 fakeip→代理。
-                // Direct 规则必须带 rewrite_ttl=1:明文国内 DNS 对被墙域名返回污染 IP,若按原始
-                // TTL 缓存,切回规则模式后 App 仍连污染 IP,间歇性失败直到过期。
-                ["clash_mode": "Direct", "server": "dns-direct", "rewrite_ttl": 1],
-                ["clash_mode": "Global", "query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1],
-                ["rule_set": ["geosite-geolocation-cn"], "server": "dns-direct"],
-                ["query_type": ["A", "AAAA"], "server": "fake", "rewrite_ttl": 1]
-            ],
+            "rules": dnsRules,
             "final": "dns-direct",
             "strategy": "ipv4_only"
         ]
@@ -562,6 +720,24 @@ final class ClashToSingBoxConverter {
         let tags = outbounds.compactMap { $0["tag"] as? String }
         let tagSet = Set(tags)
         if tags.count != tagSet.count { errs.append("存在重复的 outbound tag") }
+
+        // DNS 规则引用的 server 必须存在。dns.servers / dns.rules 是分开拼的,
+        // 少拼一个 server 只会在 sing-box 启动时才炸,这里提前拦。
+        if let dns = config["dns"] as? [String: Any] {
+            let serverTags = Set(((dns["servers"] as? [[String: Any]]) ?? []).compactMap { $0["tag"] as? String })
+            func checkRules(_ rules: [[String: Any]]) {
+                for rule in rules {
+                    if let server = rule["server"] as? String, !serverTags.contains(server) {
+                        errs.append("DNS 规则引用了不存在的 server「\(server)」")
+                    }
+                    if let nested = rule["rules"] as? [[String: Any]] { checkRules(nested) }
+                }
+            }
+            checkRules((dns["rules"] as? [[String: Any]]) ?? [])
+            if let finalServer = dns["final"] as? String, !serverTags.contains(finalServer) {
+                errs.append("DNS final 引用了不存在的 server「\(finalServer)」")
+            }
+        }
 
         // 组成员引用
         for ob in outbounds {
