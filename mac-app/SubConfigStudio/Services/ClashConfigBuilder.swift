@@ -11,6 +11,156 @@ struct ClashConfigBuilder {
     private static let selfBuiltKeyword = "自建"
     private static let selfBuiltGroupName = "自建"
 
+    // fake-ip-filter:命中的域名不走 fake-ip,客户端拿到真实 IP。收录标准是
+    // “这个域名的客户端会不会自己拿 IP 做事”—— STUN/P2P 打洞、流媒体 CDN 自行测速
+    // 选节点、本地探测与对时,这三类拿到假 IP 就会失效。
+    // 来源:OpenClash 0.47 自带的 openclash_custom_fake_filter.list。
+    // 注意分类名有歧义:Google / Netflix 段只有 STUN 服务器和视频 CDN,
+    // 不含 google.com / netflix.com 本体,服务主域名照常走 fake-ip 与域名分流。
+    // 必须与 sniffer.parse-pure-ip 配套:命中后 mihomo 只看得到纯 IP 连接,
+    // 要靠嗅探还原域名,否则 DOMAIN-SUFFIX 类规则会失配。
+    private static let fakeIPFilter: [String] = [
+        // LAN
+        "*.lan",
+        "*.localdomain",
+        "*.example",
+        "*.invalid",
+        "*.localhost",
+        "*.test",
+        "*.local",
+        "*.home.arpa",
+        // 放行NTP服务
+        "time.*.com",
+        "time.*.gov",
+        "time.*.edu.cn",
+        "time.*.apple.com",
+        "time-ios.apple.com",
+        "time1.*.com",
+        "time2.*.com",
+        "time3.*.com",
+        "time4.*.com",
+        "time5.*.com",
+        "time6.*.com",
+        "time7.*.com",
+        "ntp.*.com",
+        "ntp1.*.com",
+        "ntp2.*.com",
+        "ntp3.*.com",
+        "ntp4.*.com",
+        "ntp5.*.com",
+        "ntp6.*.com",
+        "ntp7.*.com",
+        "*.time.edu.cn",
+        "*.ntp.org.cn",
+        "+.pool.ntp.org",
+        "time1.cloud.tencent.com",
+        // 放行网易云音乐
+        "music.163.com",
+        "*.music.163.com",
+        "*.126.net",
+        // 百度音乐
+        "musicapi.taihe.com",
+        "music.taihe.com",
+        // 酷狗音乐
+        "songsearch.kugou.com",
+        "trackercdn.kugou.com",
+        // 酷我音乐
+        "*.kuwo.cn",
+        // JOOX音乐
+        "api-jooxtt.sanook.com",
+        "api.joox.com",
+        "joox.com",
+        // QQ音乐
+        "y.qq.com",
+        "*.y.qq.com",
+        "streamoc.music.tc.qq.com",
+        "mobileoc.music.tc.qq.com",
+        "isure.stream.qqmusic.qq.com",
+        "dl.stream.qqmusic.qq.com",
+        "aqqmusic.tc.qq.com",
+        "amobile.music.tc.qq.com",
+        // 虾米音乐
+        "*.xiami.com",
+        // 咪咕音乐
+        "*.music.migu.cn",
+        "music.migu.cn",
+        // win10本地连接检测
+        "+.msftconnecttest.com",
+        "+.msftncsi.com",
+        // QQ登录
+        "localhost.ptlogin2.qq.com",
+        "localhost.sec.qq.com",
+        "+.qq.com",
+        "+.tencent.com",
+        // Game
+        // Nintendo Switch
+        "+.srv.nintendo.net",
+        "*.n.n.srv.nintendo.net",
+        // Sony PlayStation
+        "+.stun.playstation.net",
+        // Microsoft Xbox
+        "xbox.*.*.microsoft.com",
+        "*.*.xboxlive.com",
+        "xbox.*.microsoft.com",
+        "xnotify.xboxlive.com",
+        // Wotgame
+        "+.battlenet.com.cn",
+        "+.wotgame.cn",
+        "+.wggames.cn",
+        "+.wowsgame.cn",
+        "+.wargaming.net",
+        // Golang
+        "proxy.golang.org",
+        // STUN
+        "stun.*.*",
+        "stun.*.*.*",
+        "+.stun.*.*",
+        "+.stun.*.*.*",
+        "+.stun.*.*.*.*",
+        "+.stun.*.*.*.*.*",
+        // Linksys Router
+        "heartbeat.belkin.com",
+        "*.linksys.com",
+        "*.linksyssmartwifi.com",
+        // ASUS Router
+        "*.router.asus.com",
+        // Apple Software Update Service
+        "mesu.apple.com",
+        "swscan.apple.com",
+        "swquery.apple.com",
+        "swdownload.apple.com",
+        "swcdn.apple.com",
+        "swdist.apple.com",
+        // Google
+        "lens.l.google.com",
+        "stun.l.google.com",
+        "na.b.g-tun.com",
+        // Netflix
+        "+.nflxvideo.net",
+        // FinalFantasy XIV Worldwide Server & CN Server
+        "*.square-enix.com",
+        "*.finalfantasyxiv.com",
+        "*.ffxiv.com",
+        "*.ff14.sdo.com",
+        "ff.dorado.sdo.com",
+        // Bilibili
+        "*.mcdn.bilivideo.cn",
+        // Disney Plus
+        "+.media.dssott.com",
+        // shark007 Codecs
+        "shark007.net",
+        // Mijia
+        "Mijia Cloud",
+        // 招商银行
+        "+.cmbchina.com",
+        "+.cmbimg.com",
+        // AdGuard
+        "local.adguard.org",
+        // 迅雷
+        "+.sandai.net",
+        "+.n0808.com",
+    ]
+
     func build(proxies: [ProxyEntry], ruleLines: [String], passthroughDNS: PassthroughDNS = .empty) -> String {
         let names = proxies.map(\.name)
 
@@ -38,7 +188,13 @@ struct ClashConfigBuilder {
             "socks-port: 7891",
             "allow-lan: true",
             "mode: Rule",
-            "log-level: info"
+            "log-level: info",
+            // store-fake-ip 把 fake-ip 映射表落盘。不开的话每次重启映射表清空,
+            // 客户端手里缓存的 198.18.x.x 全部失效 —— 表现为重启后部分 App 异常,
+            // 要等客户端 DNS 缓存过期才自愈。
+            "profile:",
+            "  store-selected: true",
+            "  store-fake-ip: true"
         ]
         lines.append(contentsOf: renderHosts(passthroughDNS.hosts))
         lines.append(contentsOf: renderDNS(passthrough: passthroughDNS))
@@ -110,10 +266,10 @@ struct ClashConfigBuilder {
             "  ipv6: false",
             "  enhanced-mode: fake-ip",
             "  fake-ip-range: 198.18.0.1/16",
-            "  fake-ip-filter:",
-            "    - \"*.lan\"",
-            "    - \"*.local\"",
-            "    - \"localhost.ptlogin2.qq.com\"",
+            "  fake-ip-filter:"
+        ]
+        lines.append(contentsOf: Self.fakeIPFilter.map { "    - \(Self.yamlQuoted($0))" })
+        lines.append(contentsOf: [
             "  default-nameserver:",
             "    - 223.5.5.5",
             "    - 119.29.29.29",
@@ -121,8 +277,14 @@ struct ClashConfigBuilder {
             "    - https://223.5.5.5/dns-query",
             "    - https://223.6.6.6/dns-query",
             "    - https://dns.alidns.com/dns-query",
-            "    - https://doh.pub/dns-query"
-        ]
+            "    - https://doh.pub/dns-query",
+            // 规则判定为 DIRECT 的连接用国内明文 DNS 解析。按路由结果生效,
+            // 与按域名匹配的 nameserver-policy 互补,且不依赖 GeoSite 数据新鲜度。
+            // 需要 mihomo >= 1.18.8。
+            "  direct-nameserver:",
+            "    - 223.5.5.5",
+            "    - 119.29.29.29"
+        ])
 
         if !passthrough.hosts.isEmpty {
             lines.append("  use-hosts: true")
@@ -141,7 +303,10 @@ struct ClashConfigBuilder {
         // (见 mihomo 文档:留空才会回落到 nameserver-policy / nameserver / fallback)。
         //   - 机场自带 proxy-server-nameserver → 原样透传;
         //   - 否则若已有可依赖的 nameserver-policy → 省略本项,让节点域名回落到 policy;
-        //   - 都没有 → 保留默认公共 DoH(维持旧行为)。
+        //   - 都没有 → 兜底明文 UDP。
+        // 兜底刻意不用 DoH:节点域名要靠它解析,而 DoH 端点自己也是域名,
+        // 会形成 default-nameserver → TCP+TLS → 才拿到结果的自举链条,
+        // 每次启动和断线重连都多付几百毫秒;明文 UDP 一个包就够。
         if !passthrough.proxyServerNameserver.isEmpty {
             lines.append("  proxy-server-nameserver:")
             for server in passthrough.proxyServerNameserver {
@@ -149,7 +314,8 @@ struct ClashConfigBuilder {
             }
         } else if passthrough.nameserverPolicy.isEmpty {
             lines.append("  proxy-server-nameserver:")
-            lines.append("    - https://dns.alidns.com/dns-query")
+            lines.append("    - 223.5.5.5")
+            lines.append("    - 119.29.29.29")
         }
 
         lines.append("")

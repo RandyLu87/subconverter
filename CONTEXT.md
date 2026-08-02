@@ -32,5 +32,9 @@ _Avoid_: Rule group, 分流组
 **Default group**:
 兜底 Policy group，不引用其他 Policy group，供其余各组选中以共享同一出口。
 
+**Passthrough DNS**（DNS 透传）:
+从 Source 的订阅原文里提取、原样搬进产物的 DNS 片段（`nameserver-policy`、`proxy-server-nameserver`、顶层 `hosts`）。存在的理由是 Node 的服务器域名往往只有机场自己的解析服务器才解得出可连通的 IP，而引擎的节点列表模式会丢弃这部分信息。
+_Avoid_: DNS 继承, DNS 合并
+
 **Flat node list**（平铺列表）:
 每个手选组候选项末尾的全量 Node 清单，含 Self-built node。它的存在是为了能在不同 Policy group 里分别指定不同的具体节点。
