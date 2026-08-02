@@ -6,22 +6,33 @@ struct ClashConfigBuilder {
     // Nodes whose name contains this keyword are gathered into a dedicated
     // self-built select group. That group is then offered as an option inside
     // every non-country select group, and is omitted entirely when no matching
-    // node exists.
+    // node exists. Such nodes are also kept out of the country auto groups —
+    // see build(proxies:ruleLines:passthroughDNS:).
     private static let selfBuiltKeyword = "自建"
     private static let selfBuiltGroupName = "自建"
 
     func build(proxies: [ProxyEntry], ruleLines: [String], passthroughDNS: PassthroughDNS = .empty) -> String {
         let names = proxies.map(\.name)
-        let countryBuckets = ProxyCountryClassifier.bucketed(names: names)
-        let availableCountryGroups = CountryBucket.allCases.filter { !countryBuckets[$0, default: []].isEmpty }
-        let countryGroupNames = availableCountryGroups.map(\.groupName)
-        AppLogger.log("Country auto group summary: \(ProxyCountryClassifier.summary(for: countryBuckets))")
 
         let selfBuiltNames = names.filter { $0.contains(Self.selfBuiltKeyword) }
         let selfBuiltGroupName = selfBuiltNames.isEmpty ? nil : Self.selfBuiltGroupName
         if let selfBuiltGroupName {
             AppLogger.log("Self-built group \"\(selfBuiltGroupName)\" with \(selfBuiltNames.count) node(s).")
         }
+
+        // Self-built nodes belong to their own group only — bucketing them by
+        // country as well would list the same node twice. Excluding them from
+        // the bucketing input is enough: a country whose nodes were all
+        // self-built ends up with an empty bucket and is dropped by the
+        // non-empty filter below, so no empty url-test group is ever emitted.
+        let countryCandidates = names.filter { !$0.contains(Self.selfBuiltKeyword) }
+        let countryBuckets = ProxyCountryClassifier.bucketed(names: countryCandidates)
+        let availableCountryGroups = CountryBucket.allCases.filter { !countryBuckets[$0, default: []].isEmpty }
+        let countryGroupNames = availableCountryGroups.map(\.groupName)
+        if !selfBuiltNames.isEmpty {
+            AppLogger.log("Excluded \(selfBuiltNames.count) self-built node(s) from country auto groups.")
+        }
+        AppLogger.log("Country auto group summary: \(ProxyCountryClassifier.summary(for: countryBuckets))")
         var lines: [String] = [
             "port: 7890",
             "socks-port: 7891",
