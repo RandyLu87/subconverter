@@ -55,3 +55,17 @@ The Swift code expects `/sub?...&target=clash&list=true` to return text beginnin
 - **`subconverter/metaconfig.ini` is the canonical Clash Meta template** for the shell-script flow (five-region HK/TW/JP/SG/US fallback + a `🧊 冷门节点` group). The macOS app does not use it — it has its own preset.
 - **`subconverter/direct-whitelist.list`** is a project-specific custom direct-rule list (not an upstream subconverter concept). Format: `DOMAIN-SUFFIX,example.com` / `DOMAIN-KEYWORD,foo` etc.
 - This fork adds **AnyTLS** subscription parsing on top of upstream.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues in `RandyLu87/subconverter`, driven via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary — `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — `CONTEXT.md` + `docs/adr/` at the repo root (created lazily by `/domain-modeling`). See `docs/agents/domain.md`.
