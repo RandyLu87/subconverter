@@ -30,7 +30,11 @@ final class ConfigGenerationService {
         try runtimeInstaller.installIfNeeded()
     }
 
-    func generate(from sources: [SourceItem], customDirectRulesText: String) async throws -> GenerationResult {
+    func generate(
+        from sources: [SourceItem],
+        customDirectRulesText: String,
+        disabledPolicyGroups: Set<String> = []
+    ) async throws -> GenerationResult {
         let enabledSources = sources
             .filter(\.enabled)
             .sorted { $0.order < $1.order }
@@ -59,14 +63,23 @@ final class ConfigGenerationService {
         )
         let rules = try presetBuilder.loadRuleLines(
             from: runtime.appRulesDirectory,
-            customDirectRulesText: customDirectRulesText
+            customDirectRulesText: customDirectRulesText,
+            disabledPolicyGroups: disabledPolicyGroups
         )
         AppLogger.log("Loaded \(rules.count) rule lines.")
+        if !disabledPolicyGroups.isEmpty {
+            AppLogger.log("Disabled policy group(s): \(disabledPolicyGroups.sorted().joined(separator: ", ")).")
+        }
         // 透传机场订阅原始 DNS(nameserver-policy / proxy-server-nameserver / hosts)。
         // 节点服务器域名多为 CDN 前置 / 私有解析,必须用机场自带解析服务器才能连通,
         // 而引擎的 list 模式只回节点、丢弃了这些信息,故直接从本地订阅文件补齐。
         let passthroughDNS = PassthroughDNS.collect(fromFilePaths: enabledSources.map(\.value))
-        let yaml = builder.build(proxies: normalized, ruleLines: rules, passthroughDNS: passthroughDNS)
+        let yaml = builder.build(
+            proxies: normalized,
+            ruleLines: rules,
+            passthroughDNS: passthroughDNS,
+            disabledPolicyGroups: disabledPolicyGroups
+        )
         AppLogger.log("Final YAML size: \(yaml.utf8.count) bytes.")
 
         return GenerationResult(yaml: yaml, proxyCount: normalized.count)

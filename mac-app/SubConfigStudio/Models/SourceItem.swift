@@ -70,17 +70,23 @@ struct PersistedAppState: Codable {
     var lastGeneratedAt: Date?
     var lastGeneratedProxyCount: Int?
     var customDirectRulesText: String
+    /// 存「停用的」而不是「启用的」:以后版本往 PresetBuilder.policyGroups 里加新组时,
+    /// 老 state.json 里没有这个名字,新组自动是启用的 —— 存启用列表就会反过来,
+    /// 新组对老用户默默不生效。
+    var disabledPolicyGroups: Set<String>
 
     init(
         sources: [SourceItem],
         lastGeneratedAt: Date?,
         lastGeneratedProxyCount: Int?,
-        customDirectRulesText: String = ""
+        customDirectRulesText: String = "",
+        disabledPolicyGroups: Set<String> = []
     ) {
         self.sources = sources
         self.lastGeneratedAt = lastGeneratedAt
         self.lastGeneratedProxyCount = lastGeneratedProxyCount
         self.customDirectRulesText = customDirectRulesText
+        self.disabledPolicyGroups = disabledPolicyGroups
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -88,6 +94,7 @@ struct PersistedAppState: Codable {
         case lastGeneratedAt
         case lastGeneratedProxyCount
         case customDirectRulesText
+        case disabledPolicyGroups
     }
 
     init(from decoder: Decoder) throws {
@@ -97,6 +104,7 @@ struct PersistedAppState: Codable {
         self.lastGeneratedAt = try container.decodeIfPresent(Date.self, forKey: .lastGeneratedAt)
         self.lastGeneratedProxyCount = try container.decodeIfPresent(Int.self, forKey: .lastGeneratedProxyCount)
         self.customDirectRulesText = try container.decodeIfPresent(String.self, forKey: .customDirectRulesText) ?? ""
+        self.disabledPolicyGroups = try container.decodeIfPresent(Set<String>.self, forKey: .disabledPolicyGroups) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -105,6 +113,7 @@ struct PersistedAppState: Codable {
         try container.encodeIfPresent(lastGeneratedAt, forKey: .lastGeneratedAt)
         try container.encodeIfPresent(lastGeneratedProxyCount, forKey: .lastGeneratedProxyCount)
         try container.encode(customDirectRulesText, forKey: .customDirectRulesText)
+        try container.encode(disabledPolicyGroups, forKey: .disabledPolicyGroups)
     }
 
     static let empty = PersistedAppState(sources: [], lastGeneratedAt: nil, lastGeneratedProxyCount: nil, customDirectRulesText: "")

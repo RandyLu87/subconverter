@@ -200,9 +200,21 @@ private struct PresetPanel: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Core Groups")
                             .font(.headline)
+                        Text("Turn a group off to drop it and its rules — that traffic falls through to Other.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
                         ForEach(PresetBuilder.policyGroups, id: \.self) { group in
-                            Label(group, systemImage: "checkmark.seal")
-                                .font(.subheadline)
+                            let locked = PresetBuilder.alwaysEnabledPolicyGroups.contains(group)
+                            Toggle(isOn: Binding(
+                                get: { model.isPolicyGroupEnabled(group) },
+                                set: { model.setPolicyGroup(group, enabled: $0) }
+                            )) {
+                                Text(locked ? "\(group) (always on)" : group)
+                                    .font(.subheadline)
+                            }
+                            .toggleStyle(.checkbox)
+                            .disabled(locked)
                         }
                     }
 

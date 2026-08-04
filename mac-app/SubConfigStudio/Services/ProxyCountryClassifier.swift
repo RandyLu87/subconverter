@@ -16,9 +16,10 @@ enum ProxyGroupIconCatalog {
     static let youtube = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/YouTube.png"
     static let netflix = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/Netflix.png"
     static let steam = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Steam.png"
-    // 通用游戏图标。Supercell / ClashRoyale 专属图标在 blackmatrix7、HotKids、
-    // Koolson/Qure、dashboard-icons 四个源里都是 404,只有通用 Game.png 可用。
-    static let game = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Game.png"
+    // Supercell / ClashRoyale 图标在 blackmatrix7、HotKids、Koolson/Qure、
+    // dashboard-icons 四个源里都是 404,所以自托管在本仓库 assets/icons/ 下。
+    // 按 commit SHA 固定,避免 @main 的 CDN 缓存漂移(与上面 lobe-icons 同做法)。
+    static let supercell = "https://cdn.jsdelivr.net/gh/RandyLu87/subconverter@2e3ac776ef3d3e02acf50ee6db4abe0f6b43d149/assets/icons/supercell.png"
     static let futu = "https://cdn.jsdelivr.net/gh/lxfcx/QuanX-icon-rule@main/icon/futunn.png"
     static let lark = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/png/lark.png"
     static let github = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/GitHub.png"

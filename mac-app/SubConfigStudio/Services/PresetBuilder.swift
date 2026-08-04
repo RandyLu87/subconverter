@@ -22,6 +22,16 @@ struct PresetBuilder {
         "Other"
     ]
 
+    /// Other 是 MATCH 的目标,不能停用:MATCH 指向一个不存在的策略组会让 mihomo
+    /// 拒绝加载整份配置。UI 侧也不给它开关。
+    static let alwaysEnabledPolicyGroups: Set<String> = ["Other"]
+
+    /// 实际会被写进产物的策略组。停用集合由用户维护,这里是唯一的裁决点 ——
+    /// 组的渲染和规则的过滤都要走它,否则两边会漂移出「规则指向已删除的组」。
+    static func enabledPolicyGroups(disabled: Set<String>) -> [String] {
+        policyGroups.filter { alwaysEnabledPolicyGroups.contains($0) || !disabled.contains($0) }
+    }
+
     // Service rules that must take precedence over the built-in CN direct
     // rules. Futu (富途牛牛) domains are otherwise swallowed by
     // RULE-SET,cn-domain / GEOSITE,cn and forced to DIRECT, so they have to
@@ -69,13 +79,40 @@ struct PresetBuilder {
         try content.write(to: destination, atomically: true, encoding: .utf8)
     }
 
-    func loadRuleLines(from rulesDirectory: URL, customDirectRulesText: String = "") throws -> [String] {
+    func loadRuleLines(
+        from rulesDirectory: URL,
+        customDirectRulesText: String = "",
+        disabledPolicyGroups: Set<String> = []
+    ) throws -> [String] {
         let priorityServiceRules = try loadRuleLines(from: Self.priorityServiceRuleFiles, in: rulesDirectory)
         let builtinDirectRules = try loadRuleLines(from: Self.builtinDirectRuleFiles, in: rulesDirectory)
         let customDirectRules = try normalizeCustomDirectRules(from: customDirectRulesText)
         let serviceRules = try loadRuleLines(from: Self.serviceRuleFiles, in: rulesDirectory)
 
-        return priorityServiceRules + builtinDirectRules + customDirectRules + serviceRules + ["MATCH,Other"]
+        let all = priorityServiceRules + builtinDirectRules + customDirectRules + serviceRules + ["MATCH,Other"]
+        let dropped = Set(Self.policyGroups).subtracting(Self.enabledPolicyGroups(disabled: disabledPolicyGroups))
+        guard !dropped.isEmpty else {
+            return all
+        }
+
+        // 停用的组,指向它的规则必须一并丢掉,否则 mihomo 因为目标组不存在而拒绝
+        // 加载整份配置。这类流量随之落到 MATCH,Other。
+        return all.filter { line in
+            guard let target = Self.ruleTarget(of: line) else { return true }
+            return !dropped.contains(target)
+        }
+    }
+
+    /// 取一条 Clash 规则的目标策略组。
+    ///
+    /// 不能简单取最后一段:`GEOIP,cn,DIRECT,no-resolve` 的末段是修饰符。目标固定在
+    /// 第 3 段,只有无参数的 `MATCH` 在第 2 段。
+    static func ruleTarget(of line: String) -> String? {
+        let parts = line.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        guard let type = parts.first else { return nil }
+        let targetIndex = type == "MATCH" ? 1 : 2
+        guard parts.count > targetIndex else { return nil }
+        return parts[targetIndex]
     }
 
     private func loadRuleLines(from files: [String], in rulesDirectory: URL) throws -> [String] {

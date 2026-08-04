@@ -161,7 +161,12 @@ struct ClashConfigBuilder {
         "+.n0808.com",
     ]
 
-    func build(proxies: [ProxyEntry], ruleLines: [String], passthroughDNS: PassthroughDNS = .empty) -> String {
+    func build(
+        proxies: [ProxyEntry],
+        ruleLines: [String],
+        passthroughDNS: PassthroughDNS = .empty,
+        disabledPolicyGroups: Set<String> = []
+    ) -> String {
         let names = proxies.map(\.name)
 
         let selfBuiltNames = names.filter { $0.contains(Self.selfBuiltKeyword) }
@@ -206,7 +211,7 @@ struct ClashConfigBuilder {
         lines.append(contentsOf: proxies.map { $0.renderedLine() })
         lines.append("")
         lines.append("proxy-groups:")
-        for group in PresetBuilder.policyGroups {
+        for group in PresetBuilder.enabledPolicyGroups(disabled: disabledPolicyGroups) {
             lines.append(
                 contentsOf: renderPolicyGroup(
                     group,
@@ -467,7 +472,7 @@ struct ClashConfigBuilder {
         case "Steam":
             return ProxyGroupIconCatalog.steam
         case "Supercell":
-            return ProxyGroupIconCatalog.game
+            return ProxyGroupIconCatalog.supercell
         case "Futu":
             return ProxyGroupIconCatalog.futu
         case "Lark":

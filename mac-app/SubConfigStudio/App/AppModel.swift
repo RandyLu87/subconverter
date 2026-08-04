@@ -19,6 +19,7 @@ final class AppModel: ObservableObject {
     @Published var lastGeneratedAt: Date?
     @Published var lastGeneratedProxyCount: Int?
     @Published var customDirectRulesText = ""
+    @Published var disabledPolicyGroups: Set<String> = []
 
     // Clash → sing-box 转换
     @Published var appMode: AppMode = .generate
@@ -40,6 +41,7 @@ final class AppModel: ObservableObject {
         self.lastGeneratedAt = state.lastGeneratedAt
         self.lastGeneratedProxyCount = state.lastGeneratedProxyCount
         self.customDirectRulesText = state.customDirectRulesText
+        self.disabledPolicyGroups = state.disabledPolicyGroups
     }
 
     var sortedSources: [SourceItem] {
@@ -121,7 +123,8 @@ final class AppModel: ObservableObject {
         do {
             let result = try await generator.generate(
                 from: sortedSources,
-                customDirectRulesText: customDirectRulesText
+                customDirectRulesText: customDirectRulesText,
+                disabledPolicyGroups: disabledPolicyGroups
             )
             previewText = result.yaml
             lastGeneratedAt = Date()
@@ -232,6 +235,27 @@ final class AppModel: ObservableObject {
         persist()
     }
 
+    var enabledPolicyGroups: [String] {
+        PresetBuilder.enabledPolicyGroups(disabled: disabledPolicyGroups)
+    }
+
+    func isPolicyGroupEnabled(_ group: String) -> Bool {
+        PresetBuilder.alwaysEnabledPolicyGroups.contains(group) || !disabledPolicyGroups.contains(group)
+    }
+
+    func setPolicyGroup(_ group: String, enabled: Bool) {
+        guard !PresetBuilder.alwaysEnabledPolicyGroups.contains(group) else {
+            return
+        }
+
+        if enabled {
+            disabledPolicyGroups.remove(group)
+        } else {
+            disabledPolicyGroups.insert(group)
+        }
+        persist()
+    }
+
     private func nextOrder() -> Int {
         (sources.map(\.order).max() ?? -1) + 1
     }
@@ -292,7 +316,8 @@ final class AppModel: ObservableObject {
                 sources: sortedSources,
                 lastGeneratedAt: lastGeneratedAt,
                 lastGeneratedProxyCount: lastGeneratedProxyCount,
-                customDirectRulesText: customDirectRulesText
+                customDirectRulesText: customDirectRulesText,
+                disabledPolicyGroups: disabledPolicyGroups
             )
         )
     }
