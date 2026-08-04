@@ -18,6 +18,7 @@ struct PresetBuilder {
         "Google",
         "Netflix",
         "Steam",
+        "Supercell",
         "Other"
     ]
 
@@ -49,7 +50,8 @@ struct PresetBuilder {
         "youtube.list",
         "google.list",
         "netflix.list",
-        "steam.list"
+        "steam.list",
+        "supercell.list"
     ]
 
     func buildExternalConfig(at destination: URL) throws {

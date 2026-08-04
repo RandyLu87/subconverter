@@ -1,0 +1,14 @@
+# Supercell 国际服(皇室战争 / 部落冲突 / 荒野乱斗 …)。
+#
+# 用 geosite 而不是手写域名:登录与商店走 supercellid.com / supercell.net,
+# 是几个游戏共用的,按单个游戏根本切不开;名单由 v2fly domain-list-community
+# 维护(含 clashroyaleapp.com / clashroyale.com / supercell.com / supercellid.com)。
+#
+# 腾讯国服不受影响,两道保险:一是 geosite:supercell 本身不含国服域名(v2fly 把
+# brawlstars.cn / haydaypop.cn 归到 tencent-games),二是这个文件排在 CN 直连块
+# 之后,真有重叠也会先命中 GEOSITE,cn(国服域名是 .cn,由 cn → tld-cn 覆盖)。
+# 所以这里不需要写任何排除规则。
+#
+# 只有域名规则,没有 IP / 端口兜底。失配的代价只是掉到 Other:仍然联网,只是不在
+# 美国节点上。详见 ClashConfigBuilder 里 fake-ip-filter 与 sniffer 的说明。
+GEOSITE,supercell,Supercell

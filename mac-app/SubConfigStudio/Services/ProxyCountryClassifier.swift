@@ -16,6 +16,9 @@ enum ProxyGroupIconCatalog {
     static let youtube = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/YouTube.png"
     static let netflix = "https://cdn.jsdelivr.net/gh/HotKids/Rules@master/Quantumult/X/Images/Color/Netflix.png"
     static let steam = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Steam.png"
+    // 通用游戏图标。Supercell / ClashRoyale 专属图标在 blackmatrix7、HotKids、
+    // Koolson/Qure、dashboard-icons 四个源里都是 404,只有通用 Game.png 可用。
+    static let game = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/Game.png"
     static let futu = "https://cdn.jsdelivr.net/gh/lxfcx/QuanX-icon-rule@main/icon/futunn.png"
     static let lark = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/png/lark.png"
     static let github = "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/icon/qure/color/GitHub.png"

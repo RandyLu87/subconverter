@@ -213,6 +213,7 @@ struct ClashConfigBuilder {
                     names: names,
                     countryGroupNames: countryGroupNames,
                     preferredCountryGroupNames: preferredCountryGroups(for: group, availableCountryGroups: availableCountryGroups),
+                    pinnedCountryGroupName: pinnedCountryGroup(for: group, availableCountryGroups: availableCountryGroups),
                     selfBuiltGroupName: selfBuiltGroupName
                 )
             )
@@ -397,6 +398,7 @@ struct ClashConfigBuilder {
         names: [String],
         countryGroupNames: [String],
         preferredCountryGroupNames: [String],
+        pinnedCountryGroupName: String?,
         selfBuiltGroupName: String?
     ) -> [String] {
         renderSelectGroup(
@@ -405,16 +407,19 @@ struct ClashConfigBuilder {
             names: names,
             countryGroupNames: preferredCountryGroupNames.isEmpty ? countryGroupNames : preferredCountryGroupNames,
             includeDefault: true,
+            pinnedCountryGroupName: pinnedCountryGroupName,
             selfBuiltGroupName: selfBuiltGroupName
         )
     }
 
+    // pinnedCountryGroupName 的语义见 pinnedCountryGroup(for:availableCountryGroups:)。
     private func renderSelectGroup(
         named name: String,
         icon: String,
         names: [String],
         countryGroupNames: [String],
         includeDefault: Bool,
+        pinnedCountryGroupName: String? = nil,
         selfBuiltGroupName: String?
     ) -> [String] {
         var lines = [
@@ -424,11 +429,16 @@ struct ClashConfigBuilder {
             "    proxies:"
         ]
 
+        if let pinnedCountryGroupName {
+            lines.append("      - \(quoted(pinnedCountryGroupName))")
+        }
         if includeDefault {
             lines.append("      - \(quoted("Default"))")
         }
         lines.append("      - \(quoted("DIRECT"))")
-        lines.append(contentsOf: countryGroupNames.map { "      - \(quoted($0))" })
+        lines.append(contentsOf: countryGroupNames
+            .filter { $0 != pinnedCountryGroupName }
+            .map { "      - \(quoted($0))" })
         if let selfBuiltGroupName {
             lines.append("      - \(quoted(selfBuiltGroupName))")
         }
@@ -456,6 +466,8 @@ struct ClashConfigBuilder {
             return ProxyGroupIconCatalog.netflix
         case "Steam":
             return ProxyGroupIconCatalog.steam
+        case "Supercell":
+            return ProxyGroupIconCatalog.game
         case "Futu":
             return ProxyGroupIconCatalog.futu
         case "Lark":
@@ -471,6 +483,25 @@ struct ClashConfigBuilder {
         default:
             return ProxyGroupIconCatalog.proxy
         }
+    }
+
+    /// 需要「开箱即走某个地区」的策略组。返回的地区组会被排到候选首项,
+    /// 也就是 mihomo 的默认选中项 —— 与 preferredCountryGroups 只改菜单顺序不同。
+    ///
+    /// Supercell 国际服钉美国:账号侧的对战服务器由 Supercell 分配,换出口改不了
+    /// 匹配池,这里钉的只是到 Supercell 的入口链路。
+    ///
+    /// 机场没有对应地区的节点时返回 nil,候选顺序完全回退到未钉之前的形状。
+    private func pinnedCountryGroup(for group: String, availableCountryGroups: [CountryBucket]) -> String? {
+        let pinned: CountryBucket
+        switch group {
+        case "Supercell":
+            pinned = .unitedStates
+        default:
+            return nil
+        }
+
+        return availableCountryGroups.contains(pinned) ? pinned.groupName : nil
     }
 
     private func preferredCountryGroups(for group: String, availableCountryGroups: [CountryBucket]) -> [String] {
