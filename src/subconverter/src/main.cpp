@@ -2,6 +2,8 @@
 #include <string>
 #include <unistd.h>
 #include <csignal>
+#include <chrono>
+#include <thread>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -58,10 +60,48 @@ void setcd(std::string &file)
     chdir(path.data());
 }
 
+#ifndef _WIN32
+static pid_t watched_parent_pid = 0;
+
+/// 跟随父进程退出。父进程被 kill -9 / 崩溃 / 被调试器停止时,子进程会被 launchd 收养继续
+/// 活着;而 httplib 无条件开了 SO_REUSEPORT(include/httplib.h:1783),遗留进程和新进程能
+/// 同时 bind 同一个端口,请求随机落到哪个都有可能——落到旧进程就会拿到旧结果。
+///
+/// 要监视的 pid 由调用方显式传入,不用 getppid() 自己推断:进程刚起来那会儿父进程可能
+/// 已经先退了(实测 `sh -c 'cmd &'` 就是如此),那时候取到的基准值本身就是 1,再怎么比都
+/// 等不到变化。显式传值则连「父进程已经没了」这种情况都能在第一轮循环就判出来。
+/// 仅在显式传 --exit-with-parent 时启用:Docker 里进程常常自己就是 PID 1,不能一概而论。
+static void startParentWatchdog(pid_t parent)
+{
+    std::thread([parent]()
+    {
+        // kill(pid, 0) 只探测存活、不投递信号;getppid() 变了同样说明父进程没了
+        while(kill(parent, 0) == 0 && getppid() == parent)
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        writeLog(0, "Parent process " + std::to_string(parent) + " exited. Shutting down.", LOG_LEVEL_FATAL);
+        webServer.stop_web_server();
+        // 兜底:父进程已经没了,没人会来收拾残局。优雅停不下来(比如监听还没起来)就硬退,
+        // 绝不能留一个占着端口的孤儿进程。
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        _exit(0);
+    }).detach();
+}
+#endif // _WIN32
+
 void chkArg(int argc, char *argv[])
 {
     for(int i = 1; i < argc; i++)
     {
+#ifndef _WIN32
+        if(strcmp(argv[i], "--exit-with-parent") == 0)
+        {
+            // 可带 pid;省略时退回 getppid(),但那样就有上面说的竞态,调用方应显式传
+            watched_parent_pid = (i < argc - 1) ? static_cast<pid_t>(to_int(argv[++i], 0)) : getppid();
+            if(watched_parent_pid <= 0)
+                watched_parent_pid = getppid();
+            continue;
+        }
+#endif // _WIN32
         if(strcmp(argv[i], "-cfw") == 0)
         {
             global.CFWChildProcess = true;
@@ -157,6 +197,8 @@ int main(int argc, char *argv[])
     signal(SIGABRT, SIG_IGN);
     signal(SIGHUP, signal_handler);
     signal(SIGQUIT, signal_handler);
+    if(watched_parent_pid > 0)
+        startParentWatchdog(watched_parent_pid);
 #endif // _WIN32
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
