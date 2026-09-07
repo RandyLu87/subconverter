@@ -18,6 +18,10 @@ src/subconverter/subconverter.exe
 src/subconverter/build/
 src/subconverter/cmake-build-debug/
 src/subconverter/base/cache/
+# 本地跑引擎时从 pref.example.toml 复制出来的配置,不入库
+src/subconverter/base/pref.toml
+src/subconverter/base/pref.yml
+src/subconverter/base/pref.ini
 
 # Editor / IDE
 .vscode/
