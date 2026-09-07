@@ -2484,6 +2484,45 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 proxy.AddMember("tls", tls, allocator);
                 break;
             }
+            case ProxyType::AnyTLS:
+            {
+                addSingBoxCommonMembers(proxy, x, "anytls", allocator);
+                if (!x.Password.empty())
+                    proxy.AddMember("password", rapidjson::StringRef(x.Password.c_str()), allocator);
+                // 会话保活参数在 sing-box 里是时长串,Clash 侧是纯秒数,必须转格式
+                if (x.IdleSessionCheckInterval)
+                    proxy.AddMember("idle_session_check_interval", rapidjson::Value(formatSingBoxInterval(x.IdleSessionCheckInterval).c_str(), allocator), allocator);
+                if (x.IdleSessionTimeout)
+                    proxy.AddMember("idle_session_timeout", rapidjson::Value(formatSingBoxInterval(x.IdleSessionTimeout).c_str(), allocator), allocator);
+                if (x.MinIdleSession)
+                    proxy.AddMember("min_idle_session", x.MinIdleSession, allocator);
+                // AnyTLS 恒为 TLS 承载,而 anytlsConstruct 不置 TLSSecure,
+                // 所以尾部那段通用 tls 补全不会触发,这里必须自己拼完整
+                rapidjson::Value tls(rapidjson::kObjectType);
+                tls.AddMember("enabled", true, allocator);
+                if (!x.SNI.empty())
+                    tls.AddMember("server_name", rapidjson::StringRef(x.SNI.c_str()), allocator);
+                else if (!x.Host.empty())
+                    tls.AddMember("server_name", rapidjson::StringRef(x.Host.c_str()), allocator);
+                if (!scv.is_undef())
+                    tls.AddMember("insecure", scv.get(), allocator);
+                if (!x.Alpn.empty())
+                {
+                    rapidjson::Value alpn(rapidjson::kArrayType);
+                    for (const auto &item : x.Alpn)
+                        alpn.PushBack(rapidjson::StringRef(item.c_str()), allocator);
+                    tls.AddMember("alpn", alpn, allocator);
+                }
+                if (!x.ClientFingerprint.empty())
+                {
+                    rapidjson::Value utls(rapidjson::kObjectType);
+                    utls.AddMember("enabled", true, allocator);
+                    utls.AddMember("fingerprint", rapidjson::StringRef(x.ClientFingerprint.c_str()), allocator);
+                    tls.AddMember("utls", utls, allocator);
+                }
+                proxy.AddMember("tls", tls, allocator);
+                break;
+            }
             case ProxyType::HTTP:
             case ProxyType::HTTPS:
             {
