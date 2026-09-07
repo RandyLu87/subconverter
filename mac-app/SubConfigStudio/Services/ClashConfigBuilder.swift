@@ -275,6 +275,10 @@ struct ClashConfigBuilder {
             "  fake-ip-filter:"
         ]
         lines.append(contentsOf: Self.fakeIPFilter.map { "    - \(Self.yamlQuoted($0))" })
+        // 透传 hosts 若把节点域名别名到另一个域名(如 *.aws-agent.biz → *.apt-agent.com),
+        // 别名目标仍要经解析器查一次;在 fake-ip 模式下不排除就会拿到 198.18.x.x,
+        // 节点连到假 IP 直接超时。机场原配置靠自己的 fake-ip-filter 排除,这里补齐。
+        lines.append(contentsOf: Self.hostsFakeIPExclusions(passthrough.hosts).map { "    - \(Self.yamlQuoted($0))" })
         lines.append(contentsOf: [
             "  default-nameserver:",
             "    - 223.5.5.5",
@@ -326,6 +330,22 @@ struct ClashConfigBuilder {
 
         lines.append("")
         return lines
+    }
+
+    /// hosts 中出现的域名(键与非 IP 的别名目标)去重后作为 fake-ip-filter 追加项。
+    /// 已在内置列表里的条目跳过;通配键(`*.` / `+.`)原样透传,mihomo 两边语法一致。
+    static func hostsFakeIPExclusions(_ hosts: [PassthroughDNS.HostEntry]) -> [String] {
+        var seen = Set(fakeIPFilter)
+        var result: [String] = []
+        for entry in hosts {
+            for domain in [entry.host] + entry.values {
+                let trimmed = domain.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty, !PassthroughDNS.isIPLiteral(trimmed), !seen.contains(trimmed) else { continue }
+                seen.insert(trimmed)
+                result.append(trimmed)
+            }
+        }
+        return result
     }
 
     /// 单引号包裹并转义,安全用于含 `:` / `,` / `*` 的 key(如 `*.example.com`、`geosite:cn`)。
@@ -568,6 +588,13 @@ struct PassthroughDNS {
             }
             if let servers = dns["proxy-server-nameserver"]?.stringArray {
                 for server in servers where !proxyServerSet.contains(server) {
+                    // 机场配置里的 `udp://127.0.0.1:7874` 之类指向的是它自己的 DNS 监听端口,
+                    // 搬到我们的配置里要么没人监听,要么打回 mihomo 自身形成回环、
+                    // 在 fake-ip 模式下解析出假 IP —— 全部域名节点一起超时。丢弃并回落兜底。
+                    guard !Self.isLoopbackNameserver(server) else {
+                        AppLogger.log("DNS 透传:忽略指向本机回环的 proxy-server-nameserver \(server)")
+                        continue
+                    }
                     proxyServerSet.insert(server)
                     proxyServerNameserver.append(server)
                 }
@@ -581,6 +608,31 @@ struct PassthroughDNS {
                 hosts.append((entry.key, values))
             }
         }
+    }
+
+    /// 判断 nameserver 地址是否指向本机(127/8、::1、localhost、0.0.0.0)。
+    /// 支持 `udp://` / `tcp://` / `tls://` / `https://` / `quic://` 前缀、端口、`[::1]` 写法
+    /// 以及 `#` 后的 policy 后缀。
+    static func isLoopbackNameserver(_ raw: String) -> Bool {
+        var s = raw.trimmingCharacters(in: .whitespaces).lowercased()
+        if let hash = s.firstIndex(of: "#") { s = String(s[..<hash]) }
+        if let range = s.range(of: "://") { s = String(s[range.upperBound...]) }
+        if let slash = s.firstIndex(of: "/") { s = String(s[..<slash]) }
+        var host = s
+        if host.hasPrefix("[") {
+            if let close = host.firstIndex(of: "]") { host = String(host[host.index(after: host.startIndex)..<close]) }
+        } else if host.filter({ $0 == ":" }).count == 1, let colon = host.lastIndex(of: ":") {
+            host = String(host[..<colon])
+        }
+        if host == "localhost" || host == "::1" || host == "0.0.0.0" || host == "::" { return true }
+        return host.hasPrefix("127.")
+    }
+
+    /// 纯 IPv4 / IPv6 字面量(hosts 的值多为 IP,少数是域名别名)。
+    static func isIPLiteral(_ s: String) -> Bool {
+        if s.contains(":") { return true }
+        let parts = s.split(separator: ".", omittingEmptySubsequences: false)
+        return parts.count == 4 && parts.allSatisfy { !$0.isEmpty && $0.allSatisfy(\.isNumber) && (Int($0) ?? 256) <= 255 }
     }
 
     /// 读取每个来源的本地 YAML 文件,提取并合并可透传的 DNS 配置。
